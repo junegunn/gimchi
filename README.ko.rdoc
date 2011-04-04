@@ -1,0 +1,60 @@
+= gimchi
+
+== 개요
+
+Gimchi는 한글 스트링을 다루는 데 사용합니다. 국립 국어원 어문 규정에 정의된
+한글의 표준 발음법과 로마자 표기법을 (일부) 구현한 것이 주요 기능입니다.
+
+또한 다음의 기능들을 제공합니다
+- 주어진 캐릭터가 한글인지 판단
+- 한글을 초성, 중성, 종성으로 분리하고, 이를 다시 합치는 기능
+- 숫자 표기를 한글 표현으로 변환
+
+== 사용법
+
+=== Gimchi::Korean 인스턴스의 생성
+  ko = Gimchi::Korean.new
+
+=== 한글 캐릭터 여부 판단
+  ko.korean_char? 'ㄱ'           # true
+  ko.complete_korean_char? 'ㄱ'  # false
+
+  ko.korean_char? 'ㅏ'           # true
+  ko.complete_korean_char? 'ㅏ'  # false
+
+  ko.korean_char? '가'           # true
+  ko.complete_korean_char? '가'  # true
+
+=== Gimchi::Korean::Char
+  arr = ko.dissect '이것은 한글입니다.'
+    # [이, 것, 은, " ", 한, 글, 입, 니, 다, "."]
+
+  arr[4].class                   # Gimchi::Korean::Char
+
+  arr[4].chosung                 # "ㅎ"
+  arr[4].jungsung                # "ㅏ"
+  arr[4].jongsung                # "ㄴ"
+  arr[4].to_a                    # ["ㅎ", "ㅏ", "ㄴ"]
+  arr[4].to_s                    # "한"
+
+  arr[4].chosung = 'ㄷ'
+  arr[4].jongsung = 'ㄹ'
+  arr[4].to_s                    # "달"
+
+=== 
+
+== Contributing to gimchi
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+== Copyright
+
+Copyright (c) 2011 Junegunn Choi. See LICENSE.txt for
+further details.
+

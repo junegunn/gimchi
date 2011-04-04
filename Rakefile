@@ -15,10 +15,13 @@ Jeweler::Tasks.new do |gem|
   gem.name = "gimchi"
   gem.homepage = "http://github.com/junegunn/gimchi"
   gem.license = "MIT"
-  gem.summary = %Q{TODO: one-line summary of your gem}
-  gem.description = %Q{TODO: longer description of your gem}
+  gem.summary = %Q{Gimchi reads Korean.}
+  gem.description = %Q{Gimchi knows how to pronounce Korean string and how to write them in roman alphabet.}
   gem.email = "junegunn.c@gmail.com"
   gem.authors = ["Junegunn Choi"]
+  gem.files = ["lib/**/*", "config/*"]
+  gem.test_files = ["test/**"]
+
   # Include your dependencies below. Runtime dependencies are required when using your gem,
   # and development dependencies are only needed for development (ie running rake tasks, tests, etc)
   #  gem.add_runtime_dependency 'jabber4r', '> 0.1'

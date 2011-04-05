@@ -93,7 +93,7 @@ The National Institute of The Korean Language (http://www.korean.go.kr)
 == Limitation of the implementation
 
 Unfortunately in order to implement the complete specification of Korean
-pronunciation and romanization, we need NLP, hugh Korean dictionaries and even
+pronunciation and romanization, we need NLP, huge Korean dictionaries and even
 semantic analysis of the given string. And even with all those complex
 processing, we cannot guarantee 100% accuracy of the output. So yes, that is
 definitely not what this gem tries to achieve. Gimchi tries to achieve "some"

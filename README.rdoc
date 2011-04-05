@@ -8,7 +8,7 @@ and how they're written in roman alphabet.
 Gimchi (only partially) implements the following rules dictated by
 The National Institute of The Korean Language (http://www.korean.go.kr)
 * Korean Standard Pronunciation
-* Korean romanization
+* Korean Romanization
 
 == Usage
 

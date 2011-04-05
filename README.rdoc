@@ -10,6 +10,9 @@ The National Institute of The Korean Language (http://www.korean.go.kr)
 * Korean Standard Pronunciation
 * Korean Romanization
 
+== Installation
+  gem install gimchi
+
 == Usage
 
 === Creating Gimchi::Korean instance

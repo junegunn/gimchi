@@ -1,3 +1,5 @@
+# encoding: UTF-8
+
 = gimchi
 
 Gimchi is a simple Ruby gem which knows how to handle Korean strings. It knows
@@ -84,7 +86,7 @@ The National Institute of The Korean Language (http://www.korean.go.kr)
   ko.romanize str, :as_pronounced => false
     # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
   ko.romanize str, :number => false
-	# "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
+    # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
 
 == Limitation of the implementation
 
@@ -95,8 +97,9 @@ processing, we cannot guarantee 100% accuracy of the output. So yes, that is
 definitely not what this gem tries to achieve. Gimchi tries to achieve "some"
 level of accuracy with relatively simple code.
 
-Currently, Gimchi code containts a lot of ad-hoc patches that try to improve the
-quality of the output, which should better be refactored anytime soon.
+Currently, Gimchi code containts a lot of ad-hoc (possibly invalid) patches
+that try to improve the quality of the output, which should better be
+refactored anytime soon.
 
 == Contributing to gimchi
  

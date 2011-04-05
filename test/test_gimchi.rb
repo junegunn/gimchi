@@ -5,10 +5,14 @@ require 'helper'
 class TestGimchi < Test::Unit::TestCase
 	def test_korean_char
 		ko = Gimchi::Korean.new
-		assert_equal true, ko.korean_char?('ㄱ')           # true
-		assert_equal true, ko.korean_char?('ㅏ')          # true
-		assert_equal true, ko.korean_char?('가')         # true
-		assert_equal true, ko.korean_char?('값')        # true
+		assert_equal true, ko.korean_char?('ㄱ')  # true
+		assert_equal true, ko.korean_char?('ㅏ')  # true
+		assert_equal true, ko.korean_char?('가')  # true
+		assert_equal true, ko.korean_char?('값')  # true
+
+		assert_equal false, ko.korean_char?('a')   # false
+		assert_equal false, ko.korean_char?('1')   # false
+		assert_raise(ArgumentError) { ko.korean_char?('두자') }
 	end
 
 	def test_complete_korean_char
@@ -18,6 +22,10 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal false, ko.complete_korean_char?('ㅏ') # false
 		assert_equal true, ko.complete_korean_char?('가') # true
 		assert_equal true, ko.complete_korean_char?('값') # true
+
+		assert_equal false, ko.korean_char?('a')   # false
+		assert_equal false, ko.korean_char?('1')   # false
+		assert_raise(ArgumentError) { ko.korean_char?('두자') }
 	end
 
 	def test_dissect

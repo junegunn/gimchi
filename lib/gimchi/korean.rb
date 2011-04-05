@@ -35,7 +35,7 @@ class Korean
 
 	# Checks if the given character is a korean character
 	def korean_char? ch
-		raise ArgumentError('Lengthy input') if ch.length > 1
+		raise ArgumentError.new('Lengthy input') if ch.length > 1
 
 		complete_korean_char?(ch) || 
 			(chosungs + jungsungs + jongsungs).include?(ch)
@@ -44,7 +44,7 @@ class Korean
 	# Checks if the given character is a "complete" korean character.
 	# "Complete" Korean character must have chosung and jungsung, with optional jongsung.
 	def complete_korean_char? ch
-		raise ArgumentError('Lengthy input') if ch.length > 1
+		raise ArgumentError.new('Lengthy input') if ch.length > 1
 
 		# Range of Korean chracters in Unicode 2.0: AC00(가) ~ D7A3(힣)
 		ch.unpack('U').all? { | c | c >= 0xAC00 && c <= 0xD7A3 }

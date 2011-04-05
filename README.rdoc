@@ -97,7 +97,7 @@ processing, we cannot guarantee 100% accuracy of the output. So yes, that is
 definitely not what this gem tries to achieve. Gimchi tries to achieve "some"
 level of accuracy with relatively simple code.
 
-Currently, Gimchi code containts a lot of ad-hoc (possibly invalid) patches
+Currently, Gimchi code contains a lot of ad-hoc (possibly invalid) patches
 that try to improve the quality of the output, which should better be
 refactored anytime soon.
 

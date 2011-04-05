@@ -16,7 +16,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/junegunn/gimchi"
   gem.license = "MIT"
   gem.summary = %Q{Gimchi reads Korean.}
-  gem.description = %Q{Gimchi knows how to pronounce Korean string and how to write them in roman alphabet.}
+  gem.description = %Q{Gimchi knows how to pronounce Korean strings and how to write them in roman alphabet.}
   gem.email = "junegunn.c@gmail.com"
   gem.authors = ["Junegunn Choi"]
   gem.files = ["lib/**/*", "config/*"]

@@ -39,7 +39,9 @@ class Korean
 
 		# recombine components into korean character
 		def to_s
-			if chosung && jungsung
+			if chosung.nil? && jungsung.nil?
+				""
+			elsif chosung && jungsung
 				n1, n2, n3 = 
 				n1 = @kor.chosungs.index(chosung) || 0
 				n2 = @kor.jungsungs.index(jungsung) || 0
@@ -51,14 +53,20 @@ class Korean
 		end
 
 		def chosung= c
+			raise ArgumentError.new('Invalid chosung component') if
+					c && @kor.chosungs.include?(c) == false
 			@chosung = c && c.dup.extend(Component).tap { |e| e.kor = @kor }
 		end
 
 		def jungsung= c
+			raise ArgumentError.new('Invalid jungsung component') if
+					c && @kor.jungsungs.include?(c) == false
 			@jungsung = c && c.dup.extend(Component).tap { |e| e.kor = @kor }
 		end
 
 		def jongsung= c
+			raise ArgumentError.new('Invalid jongsung component') if
+					c && @kor.jongsungs.include?(c) == false
 			@jongsung = c && c.dup.extend(Component).tap { |e| e.kor = @kor }
 		end
 
@@ -69,7 +77,7 @@ class Korean
 
 		# Check if this is a complete Korean character
 		def complete?
-			!partial?
+			chosung.nil? == false && jungsung.nil? == false
 		end
 
 		# Check if this is a non-complete Korean character

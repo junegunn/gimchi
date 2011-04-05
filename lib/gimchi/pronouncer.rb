@@ -15,15 +15,18 @@ private
 		end
 
 		def transform kc, next_kc, options = {}
-			options = {
-				:except => []
-			}.merge options
+			options = { :except => [] }.merge options
 			@applied.clear
+
+			# Cannot properly pronounce
+			return if kc.chosung.nil? && kc.jungsung.nil?
+
+			# Padding
 			kc.chosung = 'ㅇ' if kc.chosung.nil?
 			kc.jungsung = 'ㅡ' if kc.jungsung.nil?
 
 			if next_kc.nil?
-				rule_single kc
+				rule_single kc, :except => options[:except]
 			else
 				not_todo = []
 				blocking_rule = @pconfig['transformation']['blocking rule']
@@ -50,9 +53,10 @@ private
 			@korean.config['structure']['double consonant map']
 		end
 
-		def rule_single kc
-			rule_5_1 kc, nil
-			rule_5_3 kc, nil
+		def rule_single kc, options = {}
+			options = {:except => []}.merge options
+			rule_5_1 kc, nil unless options[:except].include? 'rule_5_1'
+			rule_5_3 kc, nil unless options[:except].include? 'rule_5_3'
 
 			if kc.jongsung
 				kc.jongsung = @pconfig['jongsung sound'][kc.jongsung]
@@ -325,7 +329,7 @@ private
 			return if next_kc.nil?
 
 			to = if %w[견란 진란 산량 단력 권력 원령 견례
-						단로 원론 원료 근류].include?(kc.org.to_s + next_kc.org.to_s)
+						문로 단로 원론 원료 근류].include?(kc.org.to_s + next_kc.org.to_s)
 					 'ㄴ'
 				 else
 					 'ㄹ'
@@ -400,11 +404,12 @@ private
 		# 제27항: __관형사형__ ‘-(으)ㄹ’ 뒤에 연결되는 ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’은 된소리로 발음한다.
 		# - ‘-(으)ㄹ’로 시작되는 어미의 경우에도 이에 준한다.
 		def rule_27 kc, next_kc
-			# TODO
-			
-			return if next_kc.nil? || next_kc.to_s == '다' # PATCH
+			# FIXME: NOT PROPERLY IMPLEMENTED
+			return if next_kc.nil?
 
-			if kc.jongsung == 'ㄹ' && %w[ㄱ ㄷ ㅂ ㅅ ㅈ].include?(next_kc.chosung)
+			# 비교적 확률이 높은 경우들에 대해서만 처리. "일" 은 제외.
+			if %w[할 갈 날 볼 을 앨 말 힐].include?(kc.to_s) && # kc.jongsung == 'ㄹ' && 
+					%w[ㄱ ㄷ ㅂ ㅅ ㅈ].include?(next_kc.chosung)
 				next_kc.chosung = fortis_map[next_kc.chosung]
 				true
 			end

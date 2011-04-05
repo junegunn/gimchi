@@ -13,6 +13,8 @@ The National Institute of The Korean Language (http://www.korean.go.kr)
 == Usage
 
 === Creating Gimchi::Korean instance
+  require 'gimchi'
+  
   ko = Gimchi::Korean.new
 
 === Checks if the given character is in Korean alphabet

@@ -14,6 +14,8 @@ Gimchi는 한글 스트링을 다롭니다.
 == 사용법
 
 === Gimchi::Korean 인스턴스의 생성
+  require 'gimchi'
+  
   ko = Gimchi::Korean.new
 
 === 한글 캐릭터 여부 판단

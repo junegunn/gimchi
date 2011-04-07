@@ -134,23 +134,37 @@ class Korean
 				:except => %w[rule_5_3]
 		dash = rdata[0]["ㅇ"]
 		romanization = ""
-		(chars = str.each_char.to_a).each_with_index do | kc, cidx |
-			if korean_char? kc
-				Korean::Char.new(self, kc).to_a.each_with_index do | comp, idx |
+
+		romanize_chunk = lambda do | chunk |
+			dissect(chunk).each do | kc |
+				kc.to_a.each_with_index do | comp, idx |
 					next if comp.nil?
 					comp = rdata[idx][comp] || comp
 					comp = comp[1..-1] if comp[0] == dash &&
 							(romanization.empty? || romanization[-1] =~ /\s/ || comp[1] == 'w')
 					romanization += comp
 				end
-			else
-				romanization += kc
 			end
+
+			return post_subs.keys.inject(romanization) { | output, pattern |
+				output.gsub(pattern, post_subs[pattern])
+			}
 		end
 
-		post_subs.keys.inject(romanization) { | output, pattern |
-			output.gsub(pattern, post_subs[pattern])
-		}
+		k_chunk = ""
+		str.each_char do | c |
+			if korean_char? c
+				k_chunk += c
+			else
+				unless k_chunk.empty?
+					romanization = romanize_chunk.call k_chunk
+					k_chunk = ""
+				end
+				romanization += c
+			end
+		end
+		romanization = romanize_chunk.call k_chunk unless k_chunk.empty?
+		romanization
 	end
 
 private

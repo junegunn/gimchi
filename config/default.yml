@@ -146,7 +146,7 @@ romanization:
         ㅢ: ui
     jongsung:
         ㄱ: k
-        ㄴ: n
+        ㄴ: n-
         ㄷ: t
         ㄹ: l
         ㅁ: m
@@ -159,4 +159,11 @@ romanization:
         kkk: k-kk
         ttt: t-tt
         ppp: p-pp
-
+        "--": "-"
+        ? !ruby/regexp /n-([^gaeiou])/
+        : "n\\1"
+        ? !ruby/regexp /-(\s)/
+        : "\\1"
+        ? !ruby/regexp /-$/
+        : ""
+        

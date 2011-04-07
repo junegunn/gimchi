@@ -118,6 +118,11 @@ class TestGimchi < Test::Unit::TestCase
 		assert s >= 411
 	end
 
+	def test_romanize_preservce_non_korean
+		ko = Gimchi::Korean.new
+		assert_equal 'ttok-kkateun kkk', ko.romanize('똑같은 kkk')
+	end
+
 	def test_romanize
 		ko = Gimchi::Korean.new
 
@@ -137,6 +142,6 @@ class TestGimchi < Test::Unit::TestCase
 		end
 		puts "#{s} / #{cnt}"
 		# FIXME
-		assert s >= 55
+		assert s >= 57
 	end
 end

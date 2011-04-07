@@ -97,18 +97,25 @@ class TestGimchi < Test::Unit::TestCase
 		test_set.each do | k, v |
 			cnt += 1
 			k = k.gsub(/[-]/, '')
-			t, tfs = ko.pronounce(k, :pronounce_each_char => false, :slur => k.include?(' '), :debug => true)
-			if v.include? t.gsub(/\s/, '')
+
+			t1, tfs1 = ko.pronounce(k, :pronounce_each_char => false, :slur => true, :debug => true)
+			t2, tfs2 = ko.pronounce(k, :pronounce_each_char => false, :slur => false, :debug => true)
+
+			path = ""
+			if (with_slur = v.include?(t1.gsub(/\s/, ''))) || v.include?(t2.gsub(/\s/, ''))
 				r = ANSI::Code::BLUE + ANSI::Code::BOLD + v.join(' / ') + ANSI::Code::RESET if v.length > 1
+				path = (with_slur ? tfs1 : tfs2).map { |e| e.sub 'rule_', '' }.join(' > ')
+				t = with_slur ? t1 : t2
 				s += 1
 			else
 				r = ANSI::Code::RED + ANSI::Code::BOLD + v.join(' / ') + ANSI::Code::RESET
+				t = [t1, t2].join ' | '
 			end
-			puts "#{k} => #{t} (#{ko.romanize t}) [#{tfs.join(' > ')}] #{r}"
+			puts "#{k} => #{t} (#{ko.romanize t, :as_pronounced => false}) [#{path}] #{r}"
 		end
 		puts "#{s} / #{cnt}"
 		# FIXME
-		assert s >= 410
+		assert s >= 411
 	end
 
 	def test_romanize

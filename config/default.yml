@@ -56,7 +56,11 @@ pronouncer:
         ㅎ:
     transformation:
         # changing the order affects the quality of the transformation
-        sequence:
+        sequence for 1:
+            - rule_5_1
+            - rule_5_3
+
+        sequence for 2:
             - rule_16
             - rule_17
             - rule_18
@@ -152,4 +156,7 @@ romanization:
         # 제2항 [붙임 2]‘ㄹ’은 모음 앞에서는 ‘ｒ’로, 자음 앞이나 어말에서는
         # ‘ｌ’로 적는다. 단, ‘ㄹㄹ’은 ‘ll’로 적는다.
         lr: ll
+        kkk: k-kk
+        ttt: t-tt
+        ppp: p-pp
 

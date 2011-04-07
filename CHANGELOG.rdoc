@@ -1,3 +1,9 @@
-=== 0.0.1 / 2011/04/05
+=== 0.1.1 / 2011/04/07
+* Removed Korean::Char#org
+* Code refactoring
+* Korean#romanize no more capitalizes the output string
+* yard documentation
+
+=== 0.1.0 / 2011/04/05
 * Prototype release.
 

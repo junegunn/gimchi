@@ -5,35 +5,41 @@ class Korean
 	DEFAULT_CONFIG_FILE_PATH = 
 		File.dirname(__FILE__) + '/../../config/default.yml'
 
+	# Returns the YAML configuration used by this Korean instance.
+	# @return [String]
 	attr_reader   :config
-	attr_accessor :pronouncer
 
 	# Initialize Gimchi::Korean.
-	# You can override many part of the implementation with customized config file.
+	# @param [String] config_file You can override many parts of the implementation by customizing config file
 	def initialize config_file = DEFAULT_CONFIG_FILE_PATH
 		require 'yaml'
 		@config = YAML.load(File.read config_file)
 		@config.freeze
 
-		@pronouncer = Korean::Pronouncer.new(self)
+		@pronouncer = Korean::Pronouncer.send :new, self
 	end
 
-	# Array of chosung's
+	# Array of chosung's.
+	#
+	# @return [Array] Array of chosung strings
 	def chosungs
 		config['structure']['chosung']
 	end
 
-	# Array of jungsung's
+	# Array of jungsung's.
+	# @return [Array] Array of jungsung strings
 	def jungsungs
 		config['structure']['jungsung']
 	end
 
-	# Array of jongsung's
+	# Array of jongsung's.
+	# @return [Array] Array of jongsung strings
 	def jongsungs
 		config['structure']['jongsung']
 	end
 
-	# Checks if the given character is a korean character
+	# Checks if the given character is a korean character.
+	# @param [String] ch A string of size 1
 	def korean_char? ch
 		raise ArgumentError.new('Lengthy input') if ch.length > 1
 
@@ -43,6 +49,7 @@ class Korean
 
 	# Checks if the given character is a "complete" korean character.
 	# "Complete" Korean character must have chosung and jungsung, with optional jongsung.
+	# @param [String] ch A string of size 1
 	def complete_korean_char? ch
 		raise ArgumentError.new('Lengthy input') if ch.length > 1
 
@@ -50,14 +57,18 @@ class Korean
 		ch.unpack('U').all? { | c | c >= 0xAC00 && c <= 0xD7A3 }
 	end
 
-	# Splits the given string into an array of Korean::Char's and strings.
+	# Splits the given string into an array of Korean::Char's and Strings of length 1.
+	# @param [String] str Input string.
+	# @return [Array] Mixed array of Korean::Char instances and Strings of length 1 (for non-korean characters)
 	def dissect str
 		str.each_char.map { |c| 
 			korean_char?(c) ? Korean::Char.new(self, c) : c
 		}
 	end
 
-	# Reads a string with numbers in Korean way.
+	# Reads numeric expressions in Korean way.
+	# @param [String, Number] str Numeric type or String containing numeric expressions
+	# @return [String] Output string
 	def read_number str
 		nconfig = config['number']
 		
@@ -68,10 +79,13 @@ class Korean
 
 	# Returns the pronunciation of the given string containing Korean characters.
 	# Takes optional options hash.
-	# - If :pronounce_each_char is true, each character of the string is pronounced respectively.
-	# - If :slur is true, characters separated by whitespaces are treated as if they were contiguous.
-	# - If :number is true, numberic parts of the string is also pronounced in Korean.
-	# - :except array allows you to skip certain transformations.
+	#
+	# @param [String] Input string
+	# @param [Boolean] options[:pronounce_each_char] Each character of the string is pronounced respectively.
+	# @param [Boolean] options[:slur] Strings separated by whitespaces are processed again as if they were contiguous.
+	# @param [Boolean] options[:number] Numberic parts of the string is also pronounced in Korean.
+	# @param [Array] options[:except] Allows you to skip certain transformations.
+	# @return [String] Output string
 	def pronounce str, options = {}
 		options = {
 			:pronounce_each_char => false,
@@ -82,46 +96,24 @@ class Korean
 		}.merge options
 
 		str = read_number(str) if options[:number]
-		chars = dissect str
 
-		transforms = []
-		idx = -1
-		while (idx += 1) < chars.length
-			c = chars[idx]
-
-			next if c.is_a?(Korean::Char) == false
-
-			next_c = chars[idx + 1]
-			next_kc = (options[:pronounce_each_char] == false &&
-					   next_c.is_a?(Korean::Char) &&
-					   next_c.complete?) ? next_c : nil
-
-			transforms += @pronouncer.transform(c, next_kc, :except => options[:except])
-
-			# Slur (TBD)
-			if options[:slur] && options[:pronounce_each_char] == false && next_c =~ /\s/
-				chars[(idx + 1)..-1].each_with_index do | nc, new_idx |
-					next if nc =~ /\s/
-
-					if nc.is_a?(Korean::Char) && nc.complete?
-						transforms += @pronouncer.transform(c, nc, :except => options[:except])
-					end
-
-					idx = idx + 1 + new_idx - 1
-					break
-				end
-			end
-		end
+		result, transforms = @pronouncer.send :pronounce!, str, options
 
 		if options[:debug]
-			return chars.join, transforms
+			return result, transforms
 		else
-			chars.join
+			return result
 		end
 	end
 
 	# Returns the romanization (alphabetical notation) of the given Korean string.
 	# http://en.wikipedia.org/wiki/Korean_romanization
+	# @param [String] str Input Korean string
+	# @param [Boolean] options[:as_pronounced] If true, #pronounce is internally called before romanize
+	# @param [Boolean] options[:number] Whether to read numeric expressions in the string
+	# @param [Boolean] options[:slur] Same as :slur in #pronounce 
+	# @return [String] Output string in Roman Alphabet
+	# @see Korean#pronounce
 	def romanize str, options = {}
 		options = {
 			:as_pronounced => true,
@@ -158,7 +150,7 @@ class Korean
 
 		post_subs.keys.inject(romanization) { | output, pattern |
 			output.gsub(pattern, post_subs[pattern])
-		}.capitalize
+		}
 	end
 
 private

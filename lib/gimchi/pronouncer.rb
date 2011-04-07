@@ -2,47 +2,98 @@
 
 module Gimchi
 class Korean
-private
+	# Private class.
 	# Partial implementation of Korean pronouncement pronunciation rules specified in
 	# http://http://www.korean.go.kr/
 	class Pronouncer
-		attr_reader :applied
-
-		def initialize(korean)
+	private
+		def initialize korean
 			@korean = korean
 			@pconfig = korean.config['pronouncer']
-			@applied = []
 		end
 
-		def transform kc, next_kc, options = {}
-			options = { :except => [] }.merge options
-			@applied.clear
+		def pronounce! str, options = {}
+			@sequence = @pconfig['transformation']['sequence for ' +
+							(options[:pronounce_each_char] ? '1' : '2')] - options[:except]
 
-			# Cannot properly pronounce
-			return if kc.chosung.nil? && kc.jungsung.nil?
+			# Dissecting
+			@chars = @korean.dissect str
+			@orig_chars = @chars.dup
 
 			# Padding
-			kc.chosung = 'ㅇ' if kc.chosung.nil?
-			kc.jungsung = 'ㅡ' if kc.jungsung.nil?
+			@chars.each { |c| pad c }
 
-			if next_kc.nil?
-				rule_single kc, :except => options[:except]
-			else
-				not_todo = []
-				blocking_rule = @pconfig['transformation']['blocking rule']
-				@pconfig['transformation']['sequence'].each do | rule |
-					next if not_todo.include?(rule) || options[:except].include?(rule)
+			# Two-phase processing
+			# - For `slur'
+			applied = []
+			2.times do | phase |
+				@chars = @chars.reject { |c| c =~ /\s/ } if phase == 1
 
-					if self.send(rule, kc, next_kc)
-						@applied << rule
-						not_todo += blocking_rule[rule] if blocking_rule.has_key?(rule)
-					end
+				# Deep-fried...no copied backup
+				@initial_chars = @chars.map { |c| c.dup }
+
+				# Transform one by one
+				applied += (0...@chars.length).inject([]) { | arr, i | arr + transform(i); }
+
+				# Post-processing (actually just for :pronounce_each_char option)
+				@chars.select { |c| c.is_a?(Korean::Char) && c.jongsung }.each do | c |
+					c.jongsung = @pconfig['jongsung sound'][c.jongsung]
 				end
+
+				break unless options[:slur]
 			end
-			@applied
+
+			return @orig_chars.join, applied
 		end
 
 	private
+		def transform idx
+			@cursor = idx
+
+			# Not korean
+			return [] unless kc.is_a? Korean::Char
+
+			# Cannot properly pronounce
+			return [] if kc.chosung.nil? && kc.jungsung.nil? && kc.jongsung.nil?
+
+			applied = []
+			not_todo = []
+			blocking_rule = @pconfig['transformation']['blocking rule']
+			@sequence.each do | rule |
+				next if not_todo.include?(rule)
+
+				if self.send(rule,)
+					applied << rule
+					not_todo += blocking_rule[rule] if blocking_rule.has_key?(rule)
+				end
+			end
+			applied
+		end
+
+		def pad c
+			return unless c.is_a? Korean::Char
+
+			c.chosung = 'ㅇ'  if c.chosung.nil?
+			c.jungsung = 'ㅡ' if c.jungsung.nil?
+		end
+
+		def kc
+			@chars[@cursor]
+		end
+
+		def next_kc
+			nkc = @chars[@cursor + 1]
+			nkc.is_a?(Korean::Char) ? nkc : nil
+		end
+
+		def kc_org
+			@initial_chars[@cursor]
+		end
+
+		def next_kc_org
+			@initial_chars[@cursor + 1]
+		end
+
 		# shortcut
 		def fortis_map
 			@korean.config['structure']['fortis map']
@@ -53,20 +104,10 @@ private
 			@korean.config['structure']['double consonant map']
 		end
 
-		def rule_single kc, options = {}
-			options = {:except => []}.merge options
-			rule_5_1 kc, nil unless options[:except].include? 'rule_5_1'
-			rule_5_3 kc, nil unless options[:except].include? 'rule_5_3'
-
-			if kc.jongsung
-				kc.jongsung = @pconfig['jongsung sound'][kc.jongsung]
-			end
-		end
-
 		# 제5항: ‘ㅑ ㅒ ㅕ ㅖ ㅘ ㅙ ㅛ ㅝ ㅞ ㅠ ㅢ’는 이중 모음으로 발음한다.
 		#  다만 1. 용언의 활용형에 나타나는 ‘져, 쪄, 쳐’는 [저, 쩌, 처]로 발음한다.
 		#  다만 3. 자음을 첫소리로 가지고 있는 음절의 ‘ㅢ’는 [ㅣ]로 발음한다.
-		def rule_5_1 kc, next_kc
+		def rule_5_1
 			if %w[져 쪄 쳐].include? kc.to_s
 				kc.jungsung = 'ㅓ'
 
@@ -74,8 +115,8 @@ private
 			end
 		end
 
-		def rule_5_3 kc, next_kc
-			if kc.jungsung == 'ㅢ' && kc.org.chosung.consonant?
+		def rule_5_3
+			if kc.jungsung == 'ㅢ' && kc_org.chosung.consonant?
 				kc.jungsung = 'ㅣ'
 
 				true
@@ -84,7 +125,7 @@ private
 
 		# 제9항: 받침 ‘ㄲ, ㅋ’, ‘ㅅ, ㅆ, ㅈ, ㅊ, ㅌ’, ‘ㅍ’은 어말 또는 자음 앞에서
 		# 각각 대표음 [ㄱ, ㄷ, ㅂ]으로 발음한다.
-		def rule_9 kc, next_kc
+		def rule_9
 			map = {
 				%w[ㄲ ㅋ] => 'ㄱ',
 				%w[ㅅ ㅆ ㅈ ㅊ ㅌ] => 'ㄷ',
@@ -99,7 +140,7 @@ private
 
 		# 제10항: 겹받침 ‘ㄳ’, ‘ㄵ’, ‘ㄼ, ㄽ, ㄾ’, ‘ㅄ’은 어말 또는 자음 앞에서
 		# 각각 [ㄱ, ㄴ, ㄹ, ㅂ]으로 발음한다.
-		def rule_10 kc, next_kc
+		def rule_10
 			map = {
 				%w[ㄳ] => 'ㄱ',
 				%w[ㄵ] => 'ㄴ',
@@ -110,7 +151,7 @@ private
 				# Exceptions
 				if next_kc && (
 					   (kc.to_s == '밟' && next_kc.chosung.consonant?) ||
-					   (kc.to_s == '넓' && next_kc && %w[적 죽 둥].include?(next_kc.org.to_s))) # PATCH
+					   (kc.to_s == '넓' && next_kc && %w[적 죽 둥].include?(next_kc_org.to_s))) # PATCH
 					kc.jongsung = 'ㅂ'
 				else
 					kc.jongsung = map[ map.keys.find { |e| e.include? kc.jongsung } ]
@@ -121,7 +162,7 @@ private
 		end
 
 		# 제11항: 겹받침 ‘ㄺ, ㄻ, ㄿ’은 어말 또는 자음 앞에서 각각 [ㄱ, ㅁ, ㅂ]으로 발음한다.
-		def rule_11 kc, next_kc
+		def rule_11
 			map = {
 				'ㄺ' => 'ㄱ',
 				'ㄻ' => 'ㅁ',
@@ -131,7 +172,7 @@ private
 				# 다만, 용언의 어간 말음 ‘ㄺ’은 ‘ㄱ’ 앞에서 [ㄹ]로 발음한다.
 				# - 용언 여부 판단은?: 중성으로 판단 (PATCH)
 				if next_kc && kc.jongsung == 'ㄺ' &&
-					next_kc.org.chosung == 'ㄱ' &&
+					next_kc_org.chosung == 'ㄱ' &&
 					%w[맑 얽 섥 밝 늙 묽 넓].include?(kc.to_s) # PATCH
 					kc.jongsung = 'ㄹ'
 				else
@@ -155,7 +196,7 @@ private
 		#   [붙임]‘ㄶ, ㅀ’ 뒤에 ‘ㄴ’이 결합되는 경우에는, ‘ㅎ’을 발음하지 않는다.
 		#
 		#  4. ‘ㅎ(ㄶ, ㅀ)’ 뒤에 모음으로 시작된 어미나 접미사가 결합되는 경우에는, ‘ㅎ’을 발음하지 않는다.
-		def rule_12 kc, next_kc
+		def rule_12
 			return if next_kc.nil?
 
 			map_12_1 = {
@@ -218,17 +259,18 @@ private
 
 		# 제13항: 홑받침이나 쌍받침이 모음으로 시작된 조사나 어미, 접미사와
 		# 결합되는 경우에는, 제 음가대로 뒤 음절 첫소리로 옮겨 발음한다.
-		def rule_13 kc, next_kc
+		def rule_13
 			return if kc.jongsung.nil? || kc.jongsung == 'ㅇ' || next_kc.nil? || next_kc.chosung != 'ㅇ'
 			next_kc.chosung = kc.jongsung
 			kc.jongsung = nil
 
 			true
 		end
+
 		# 제14항: 겹받침이 모음으로 시작된 조사나 어미, 접미사와 결합되는 경우에는,
 		# 뒤엣것만을 뒤 음절 첫소리로 옮겨 발음한다.(이 경우, ‘ㅅ’은 된소리로 발음함.)
 		#
-		def rule_14 kc, next_kc
+		def rule_14
 			return if kc.jongsung.nil? || kc.jongsung == 'ㅇ' || next_kc.nil? || next_kc.chosung != 'ㅇ'
 			if consonants = double_consonant_map[kc.jongsung]
 				consonants[1] = 'ㅆ' if consonants[1] == 'ㅅ'
@@ -237,9 +279,10 @@ private
 				true
 			end
 		end
+
 		# 제15항: 받침 뒤에 모음 ‘ㅏ, ㅓ, ㅗ, ㅜ, ㅟ’들로 시작되는 __실질 형태소__가 연결되는
 		# 경우에는, 대표음으로 바꾸어서 뒤 음절 첫소리로 옮겨 발음한다.
-		def rule_15 kc, next_kc
+		def rule_15
 			return if kc.jongsung.nil? || kc.jongsung == 'ㅇ' || next_kc.nil? || next_kc.chosung != 'ㅇ'
 
 			if false && %w[ㅏ ㅓ ㅗ ㅜ ㅟ].include?(next_kc.jungsung) &&
@@ -253,7 +296,7 @@ private
 
 		# 제16항: 한글 자모의 이름은 그 받침소리를 연음하되, ‘ㄷ, ㅈ, ㅊ, ㅋ, ㅌ,
 		# ㅍ, ㅎ’의 경우에는 특별히 다음과 같이 발음한다.
-		def rule_16 kc, next_kc
+		def rule_16
 			return if next_kc.nil?
 
 			map = {'디귿' => '디긋',
@@ -278,7 +321,7 @@ private
 		# [ㅈ, ㅊ]으로 바꾸어서 뒤 음절 첫소리로 옮겨 발음한다.
 		#
 		# [붙임] ‘ㄷ’ 뒤에 접미사 ‘히’가 결합되어 ‘티’를 이루는 것은 [치]로 발음한다.
-		def rule_17 kc, next_kc
+		def rule_17
 			return if next_kc.nil? || %w[ㄷ ㅌ ㄾ].include?(kc.jongsung) == false
 
 			if next_kc.to_s == '이'
@@ -296,7 +339,7 @@ private
 
 		# 제18항: 받침 ‘ㄱ(ㄲ, ㅋ, ㄳ, ㄺ), ㄷ(ㅅ, ㅆ, ㅈ, ㅊ, ㅌ, ㅎ), ㅂ(ㅍ, ㄼ,
 		# ㄿ, ㅄ)’은 ‘ㄴ, ㅁ’ 앞에서 [ㅇ, ㄴ, ㅁ]으로 발음한다.
-		def rule_18 kc, next_kc
+		def rule_18
 			map = {
 				%w[ㄱ ㄲ ㅋ ㄳ ㄺ] => 'ㅇ', 
 				%w[ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅎ] => 'ㄴ', 
@@ -311,7 +354,7 @@ private
 
 		# 제19항: 받침 ‘ㅁ, ㅇ’ 뒤에 연결되는 ‘ㄹ’은 [ㄴ]으로 발음한다.
 		# [붙임]받침 ‘ㄱ, ㅂ’ 뒤에 연결되는 ‘ㄹ’도 [ㄴ]으로 발음한다.
-		def rule_19 kc, next_kc
+		def rule_19
 			if next_kc && next_kc.chosung == 'ㄹ' && %w[ㅁ ㅇ ㄱ ㅂ].include?(kc.jongsung)
 				next_kc.chosung = 'ㄴ'
 
@@ -325,11 +368,11 @@ private
 		end
 
 		# 제20항: ‘ㄴ’은 ‘ㄹ’의 앞이나 뒤에서 [ㄹ]로 발음한다.
-		def rule_20 kc, next_kc
+		def rule_20
 			return if next_kc.nil?
 
 			to = if %w[견란 진란 산량 단력 권력 원령 견례
-						문로 단로 원론 원료 근류].include?(kc.org.to_s + next_kc.org.to_s)
+						문로 단로 원론 원료 근류].include?(kc_org.to_s + next_kc_org.to_s)
 					 'ㄴ'
 				 else
 					 'ㄹ'
@@ -348,7 +391,7 @@ private
 
 		# 제23항: 받침 ‘ㄱ(ㄲ, ㅋ, ㄳ, ㄺ), ㄷ(ㅅ, ㅆ, ㅈ, ㅊ, ㅌ), ㅂ(ㅍ, ㄼ, ㄿ,ㅄ)’
 		# 뒤에 연결되는 ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’은 된소리로 발음한다.
-		def rule_23 kc, next_kc
+		def rule_23
 			return if next_kc.nil?
 			if fortis_map.keys.include?(next_kc.chosung) &&
 				%w[ㄱ ㄲ ㅋ ㄳ ㄺ ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅂ ㅍ ㄼ ㄿ ㅄ].include?(kc.jongsung)
@@ -361,7 +404,7 @@ private
 		# 제24항: 어간 받침 ‘ㄴ(ㄵ), ㅁ(ㄻ)’ 뒤에 결합되는 어미의 첫소리 ‘ㄱ, ㄷ, ㅅ, ㅈ’은 된소리로 발음한다.
 		# 다만, 피동, 사동의 접미사 ‘-기-’는 된소리로 발음하지 않는다.
 		# 용언 어간에만 적용.
-		def rule_24 kc, next_kc
+		def rule_24
 			return if next_kc.nil? || 
 				next_kc.to_s == '기' # FIXME 피동/사동 여부 판단 불가. e.g. 줄넘기
 
@@ -385,7 +428,7 @@ private
 
 		# 제25항: 어간 받침 ‘ㄼ, ㄾ’ 뒤에 결합되는 어미의 첫소리 ‘ㄱ, ㄷ, ㅅ, ㅈ’은
 		# 된소리로 발음한다.
-		def rule_25 kc, next_kc
+		def rule_25
 			return if next_kc.nil?
 
 			if %w[ㄱ ㄷ ㅅ ㅈ].include?(next_kc.chosung) &&
@@ -397,13 +440,13 @@ private
 		end
 
 		# 제26항: 한자어에서, ‘ㄹ’ 받침 뒤에 연결되는 ‘ㄷ, ㅅ, ㅈ’은 된소리로 발음한다.
-		def rule_26 kc, next_kc
+		def rule_26
 			# TODO
 		end
 
 		# 제27항: __관형사형__ ‘-(으)ㄹ’ 뒤에 연결되는 ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’은 된소리로 발음한다.
 		# - ‘-(으)ㄹ’로 시작되는 어미의 경우에도 이에 준한다.
-		def rule_27 kc, next_kc
+		def rule_27
 			# FIXME: NOT PROPERLY IMPLEMENTED
 			return if next_kc.nil?
 
@@ -419,14 +462,14 @@ private
 		# 제28항: 표기상으로는 사이시옷이 없더라도, 관형격 기능을 지니는 사이시옷이
 		# 있어야 할(휴지가 성립되는) 합성어의 경우에는, 뒤 단어의 첫소리 ‘ㄱ, ㄷ,
 		# ㅂ, ㅅ, ㅈ’을 된소리로 발음한다.
-		def rule_26_28 kc, next_kc
+		def rule_26_28
 			# TODO
 		end
 
 		# 제29항: 합성어 및 파생어에서, 앞 단어나 접두사의 끝이 자음이고 뒤 단어나
 		# 접미사의 첫음절이 ‘이, 야, 여, 요, 유’인 경우에는, ‘ㄴ’ 음을 첨가하여
 		# [니, 냐, 녀, 뇨, 뉴]로 발음한다.
-		def rule_29 kc, next_kc
+		def rule_29
 			# TODO
 		end
 
@@ -436,7 +479,7 @@ private
 		# 발음하는 것도 허용한다.
 		# 2. 사이시옷 뒤에 ‘ㄴ, ㅁ’이 결합되는 경우에는 [ㄴ]으로 발음한다. 
 		# 3. 사이시옷 뒤에 ‘이’ 음이 결합되는 경우에는 [ㄴㄴ]으로 발음한다.
-		def rule_30 kc, next_kc
+		def rule_30
 			return if next_kc.nil? || kc.jongsung != 'ㅅ'
 
 			if %w[ㄱ ㄷ ㅂ ㅅ ㅈ].include? next_kc.chosung

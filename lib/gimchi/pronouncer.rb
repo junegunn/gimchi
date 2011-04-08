@@ -62,7 +62,7 @@ class Korean
 			@sequence.each do | rule |
 				next if not_todo.include?(rule)
 
-				if self.send(rule,)
+				if self.send(rule)
 					applied << rule
 					not_todo += blocking_rule[rule] if blocking_rule.has_key?(rule)
 				end

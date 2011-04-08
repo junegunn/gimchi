@@ -141,7 +141,7 @@ class Korean
 					next if comp.nil?
 					comp = rdata[idx][comp] || comp
 					comp = comp[1..-1] if comp[0, 1] == dash &&
-							(romanization.empty? || romanization[-1] =~ /\s/ || comp[1, 1] == 'w')
+							(romanization.empty? || romanization[-1, 1] =~ /\s/)
 					romanization += comp
 				end
 			end

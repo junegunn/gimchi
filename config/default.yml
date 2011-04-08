@@ -156,6 +156,8 @@ romanization:
         # 제2항 [붙임 2]‘ㄹ’은 모음 앞에서는 ‘ｒ’로, 자음 앞이나 어말에서는
         # ‘ｌ’로 적는다. 단, ‘ㄹㄹ’은 ‘ll’로 적는다.
         lr: ll
+        "-w": w
+        "-y": y
         kkk: k-kk
         ttt: t-tt
         ppp: p-pp

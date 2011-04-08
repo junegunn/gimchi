@@ -142,6 +142,6 @@ class TestGimchi < Test::Unit::TestCase
 		end
 		puts "#{s} / #{cnt}"
 		# FIXME
-		assert s >= 60
+		assert s >= 63
 	end
 end

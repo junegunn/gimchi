@@ -27,7 +27,7 @@ class Korean
 			# - For `slur'
 			applied = []
 			2.times do | phase |
-				@chars = @chars.reject { |c| c =~ /\s/ } if phase == 1
+				@chars = @chars.reject { |c| c =~ /\s/ } if phase == 1 # slur-phase
 
 				# Deep-fried...no copied backup
 				@initial_chars = @chars.map { |c| c.dup }
@@ -49,12 +49,19 @@ class Korean
 	private
 		def transform idx
 			@cursor = idx
+			kc = @chars[@cursor]
 
 			# Not korean
 			return [] unless kc.is_a? Korean::Char
 
+			# Setting up variables for fast lookup
+			@kc = kc
+			@next_kc = (nkc = @chars[@cursor + 1]).is_a?(Korean::Char) ? nkc : nil
+			@kc_org = @initial_chars[@cursor]
+			@next_kc_org = (nkco = @initial_chars[@cursor + 1]).is_a?(Korean::Char) ? nkco : nil
+
 			# Cannot properly pronounce
-			return [] if kc.chosung.nil? && kc.jungsung.nil? && kc.jongsung.nil?
+			return [] if @kc.chosung.nil? && @kc.jungsung.nil? && @kc.jongsung.nil?
 
 			applied = []
 			not_todo = []
@@ -77,23 +84,6 @@ class Korean
 			c.jungsung = 'ㅡ' if c.jungsung.nil?
 		end
 
-		def kc
-			@chars[@cursor]
-		end
-
-		def next_kc
-			nkc = @chars[@cursor + 1]
-			nkc.is_a?(Korean::Char) ? nkc : nil
-		end
-
-		def kc_org
-			@initial_chars[@cursor]
-		end
-
-		def next_kc_org
-			@initial_chars[@cursor + 1]
-		end
-
 		# shortcut
 		def fortis_map
 			@korean.config['structure']['fortis map']
@@ -108,16 +98,16 @@ class Korean
 		#  다만 1. 용언의 활용형에 나타나는 ‘져, 쪄, 쳐’는 [저, 쩌, 처]로 발음한다.
 		#  다만 3. 자음을 첫소리로 가지고 있는 음절의 ‘ㅢ’는 [ㅣ]로 발음한다.
 		def rule_5_1
-			if %w[져 쪄 쳐].include? kc.to_s
-				kc.jungsung = 'ㅓ'
+			if %w[져 쪄 쳐].include? @kc.to_s
+				@kc.jungsung = 'ㅓ'
 
 				true
 			end
 		end
 
 		def rule_5_3
-			if kc.jungsung == 'ㅢ' && kc_org.chosung.consonant?
-				kc.jungsung = 'ㅣ'
+			if @kc.jungsung == 'ㅢ' && @kc_org.chosung.consonant?
+				@kc.jungsung = 'ㅣ'
 
 				true
 			end
@@ -131,8 +121,8 @@ class Korean
 				%w[ㅅ ㅆ ㅈ ㅊ ㅌ] => 'ㄷ',
 				%w[ㅍ] => 'ㅂ'
 			}
-			if map.keys.flatten.include?(kc.jongsung) && (next_kc.nil? || next_kc.chosung.consonant?)
-				kc.jongsung = map[ map.keys.find { |e| e.include? kc.jongsung } ]
+			if map.keys.flatten.include?(@kc.jongsung) && (@next_kc.nil? || @next_kc.chosung.consonant?)
+				@kc.jongsung = map[ map.keys.find { |e| e.include? @kc.jongsung } ]
 
 				true
 			end
@@ -147,14 +137,14 @@ class Korean
 				%w[ㄼ ㄽ ㄾ] => 'ㄹ',
 				%w[ㅄ] => 'ㅂ'
 			}
-			if map.keys.flatten.include?(kc.jongsung) && (next_kc.nil? || next_kc.chosung.consonant?)
+			if map.keys.flatten.include?(@kc.jongsung) && (@next_kc.nil? || @next_kc.chosung.consonant?)
 				# Exceptions
-				if next_kc && (
-					   (kc.to_s == '밟' && next_kc.chosung.consonant?) ||
-					   (kc.to_s == '넓' && next_kc && %w[적 죽 둥].include?(next_kc_org.to_s))) # PATCH
-					kc.jongsung = 'ㅂ'
+				if @next_kc && (
+					   (@kc.to_s == '밟' && @next_kc.chosung.consonant?) ||
+					   (@kc.to_s == '넓' && @next_kc && %w[적 죽 둥].include?(@next_kc_org.to_s))) # PATCH
+					@kc.jongsung = 'ㅂ'
 				else
-					kc.jongsung = map[ map.keys.find { |e| e.include? kc.jongsung } ]
+					@kc.jongsung = map[ map.keys.find { |e| e.include? @kc.jongsung } ]
 				end
 
 				true
@@ -168,15 +158,15 @@ class Korean
 				'ㄻ' => 'ㅁ',
 				'ㄿ' => 'ㅂ'
 			}
-			if map.keys.include?(kc.jongsung) && (next_kc.nil? || next_kc.chosung.consonant?)
+			if map.keys.include?(@kc.jongsung) && (@next_kc.nil? || @next_kc.chosung.consonant?)
 				# 다만, 용언의 어간 말음 ‘ㄺ’은 ‘ㄱ’ 앞에서 [ㄹ]로 발음한다.
 				# - 용언 여부 판단은?: 중성으로 판단 (PATCH)
-				if next_kc && kc.jongsung == 'ㄺ' &&
-					next_kc_org.chosung == 'ㄱ' &&
-					%w[맑 얽 섥 밝 늙 묽 넓].include?(kc.to_s) # PATCH
-					kc.jongsung = 'ㄹ'
+				if @next_kc && @kc.jongsung == 'ㄺ' &&
+					@next_kc_org.chosung == 'ㄱ' &&
+					%w[맑 얽 섥 밝 늙 묽 넓].include?(@kc.to_s) # PATCH
+					@kc.jongsung = 'ㄹ'
 				else
-					kc.jongsung = map[kc.jongsung]
+					@kc.jongsung = map[@kc.jongsung]
 				end
 
 				true
@@ -197,41 +187,41 @@ class Korean
 		#
 		#  4. ‘ㅎ(ㄶ, ㅀ)’ 뒤에 모음으로 시작된 어미나 접미사가 결합되는 경우에는, ‘ㅎ’을 발음하지 않는다.
 		def rule_12
-			return if next_kc.nil?
+			return if @next_kc.nil?
 
 			map_12_1 = {
 				'ㄱ' => 'ㅋ',
 				'ㄷ' => 'ㅌ',
 				'ㅈ' => 'ㅊ' }
-				if %w[ㅎ ㄶ ㅀ].include?(kc.jongsung) 
+				if %w[ㅎ ㄶ ㅀ].include?(@kc.jongsung) 
 					# 12-1
-					if map_12_1.keys.include?(next_kc.chosung)
-						next_kc.chosung = map_12_1[next_kc.chosung]
-						kc.jongsung = (dc = double_consonant_map[kc.jongsung]) && dc.first
+					if map_12_1.keys.include?(@next_kc.chosung)
+						@next_kc.chosung = map_12_1[@next_kc.chosung]
+						@kc.jongsung = (dc = double_consonant_map[@kc.jongsung]) && dc.first
 
 						# 12-2
-					elsif next_kc.chosung == 'ㅅ'
-						kc.jongsung = (dc = double_consonant_map[kc.jongsung]) && dc.first
-						next_kc.chosung = 'ㅆ'
+					elsif @next_kc.chosung == 'ㅅ'
+						@kc.jongsung = (dc = double_consonant_map[@kc.jongsung]) && dc.first
+						@next_kc.chosung = 'ㅆ'
 
 						# 12-3
-					elsif next_kc.chosung == 'ㄴ'
-						if dc = double_consonant_map[kc.jongsung]
-							kc.jongsung = dc.first
+					elsif @next_kc.chosung == 'ㄴ'
+						if dc = double_consonant_map[@kc.jongsung]
+							@kc.jongsung = dc.first
 						else
-							kc.jongsung = 'ㄴ'
+							@kc.jongsung = 'ㄴ'
 						end
 
 						# 12-4
-					elsif next_kc.chosung == 'ㅇ'
-						kc.jongsung = (dc = double_consonant_map[kc.jongsung]) && dc.first
+					elsif @next_kc.chosung == 'ㅇ'
+						@kc.jongsung = (dc = double_consonant_map[@kc.jongsung]) && dc.first
 					end
 
 					true
 				end
 
 				# 12-1 붙임
-				if next_kc.chosung == 'ㅎ'
+				if @next_kc.chosung == 'ㅎ'
 					map_jongsung = {
 						# 붙임 1
 						'ㄱ' => [nil,  'ㅋ'],
@@ -248,9 +238,9 @@ class Korean
 						'ㅊ' => [nil, 'ㅌ'],
 						'ㅌ' => [nil, 'ㅌ'],
 					}
-					if trans1 = map_jongsung[kc.jongsung]
-						kc.jongsung = trans1.first
-						next_kc.chosung = trans1.last
+					if trans1 = map_jongsung[@kc.jongsung]
+						@kc.jongsung = trans1.first
+						@next_kc.chosung = trans1.last
 
 						true
 					end
@@ -260,9 +250,9 @@ class Korean
 		# 제13항: 홑받침이나 쌍받침이 모음으로 시작된 조사나 어미, 접미사와
 		# 결합되는 경우에는, 제 음가대로 뒤 음절 첫소리로 옮겨 발음한다.
 		def rule_13
-			return if kc.jongsung.nil? || kc.jongsung == 'ㅇ' || next_kc.nil? || next_kc.chosung != 'ㅇ'
-			next_kc.chosung = kc.jongsung
-			kc.jongsung = nil
+			return if @kc.jongsung.nil? || @kc.jongsung == 'ㅇ' || @next_kc.nil? || @next_kc.chosung != 'ㅇ'
+			@next_kc.chosung = @kc.jongsung
+			@kc.jongsung = nil
 
 			true
 		end
@@ -271,10 +261,10 @@ class Korean
 		# 뒤엣것만을 뒤 음절 첫소리로 옮겨 발음한다.(이 경우, ‘ㅅ’은 된소리로 발음함.)
 		#
 		def rule_14
-			return if kc.jongsung.nil? || kc.jongsung == 'ㅇ' || next_kc.nil? || next_kc.chosung != 'ㅇ'
-			if consonants = double_consonant_map[kc.jongsung]
+			return if @kc.jongsung.nil? || @kc.jongsung == 'ㅇ' || @next_kc.nil? || @next_kc.chosung != 'ㅇ'
+			if consonants = double_consonant_map[@kc.jongsung]
 				consonants[1] = 'ㅆ' if consonants[1] == 'ㅅ'
-				kc.jongsung, next_kc.chosung = consonants
+				@kc.jongsung, @next_kc.chosung = consonants
 
 				true
 			end
@@ -283,12 +273,12 @@ class Korean
 		# 제15항: 받침 뒤에 모음 ‘ㅏ, ㅓ, ㅗ, ㅜ, ㅟ’들로 시작되는 __실질 형태소__가 연결되는
 		# 경우에는, 대표음으로 바꾸어서 뒤 음절 첫소리로 옮겨 발음한다.
 		def rule_15
-			return if kc.jongsung.nil? || kc.jongsung == 'ㅇ' || next_kc.nil? || next_kc.chosung != 'ㅇ'
+			return if @kc.jongsung.nil? || @kc.jongsung == 'ㅇ' || @next_kc.nil? || @next_kc.chosung != 'ㅇ'
 
-			if false && %w[ㅏ ㅓ ㅗ ㅜ ㅟ].include?(next_kc.jungsung) &&
-					%[ㅆ ㄲ ㅈ ㅊ ㄵ ㄻ ㄾ ㄿ ㄺ].include?(kc.jongsung) == false # PATCH
-				next_kc.chosung = @pconfig['jongsung sound'][ kc.jongsung ]
-				kc.jongsung = nil
+			if false && %w[ㅏ ㅓ ㅗ ㅜ ㅟ].include?(@next_kc.jungsung) &&
+					%[ㅆ ㄲ ㅈ ㅊ ㄵ ㄻ ㄾ ㄿ ㄺ].include?(@kc.jongsung) == false # PATCH
+				@next_kc.chosung = @pconfig['jongsung sound'][ @kc.jongsung ]
+				@kc.jongsung = nil
 
 				true
 			end
@@ -297,7 +287,7 @@ class Korean
 		# 제16항: 한글 자모의 이름은 그 받침소리를 연음하되, ‘ㄷ, ㅈ, ㅊ, ㅋ, ㅌ,
 		# ㅍ, ㅎ’의 경우에는 특별히 다음과 같이 발음한다.
 		def rule_16
-			return if next_kc.nil?
+			return if @next_kc.nil?
 
 			map = {'디귿' => '디긋',
 				   '지읒' => '지읏',
@@ -307,11 +297,11 @@ class Korean
 				   '피읖' => '피읍',
 				   '히읗' => '히읏'}
 
-			word = kc.to_s + next_kc.to_s
+			word = @kc.to_s + @next_kc.to_s
 			if map.keys.include? word
-				new_char = @korean.dissect(map[word][1])[0]
-				next_kc.chosung = new_char.chosung
-				next_kc.jongsung = new_char.jongsung
+				new_char = @korean.dissect(map[word].scan(/./mu)[1])[0]
+				@next_kc.chosung = new_char.chosung
+				@next_kc.jongsung = new_char.jongsung
 
 				true
 			end
@@ -322,16 +312,16 @@ class Korean
 		#
 		# [붙임] ‘ㄷ’ 뒤에 접미사 ‘히’가 결합되어 ‘티’를 이루는 것은 [치]로 발음한다.
 		def rule_17
-			return if next_kc.nil? || %w[ㄷ ㅌ ㄾ].include?(kc.jongsung) == false
+			return if @next_kc.nil? || %w[ㄷ ㅌ ㄾ].include?(@kc.jongsung) == false
 
-			if next_kc.to_s == '이'
-				next_kc.chosung = kc.jongsung == 'ㄷ' ? 'ㅈ' : 'ㅊ'
-				kc.jongsung = (dc = double_consonant_map[kc.jongsung]) && dc.first
+			if @next_kc.to_s == '이'
+				@next_kc.chosung = @kc.jongsung == 'ㄷ' ? 'ㅈ' : 'ㅊ'
+				@kc.jongsung = (dc = double_consonant_map[@kc.jongsung]) && dc.first
 
 				true
-			elsif next_kc.to_s == '히'
-				next_kc.chosung = 'ㅊ'
-				kc.jongsung = (dc = double_consonant_map[kc.jongsung]) && dc.first
+			elsif @next_kc.to_s == '히'
+				@next_kc.chosung = 'ㅊ'
+				@kc.jongsung = (dc = double_consonant_map[@kc.jongsung]) && dc.first
 
 				true
 			end
@@ -345,8 +335,8 @@ class Korean
 				%w[ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅎ] => 'ㄴ', 
 				%w[ㅂ ㅍ ㄼ ㄿ ㅄ] => 'ㅁ'
 			}
-			if next_kc && map.keys.flatten.include?(kc.jongsung) && %w[ㄴ ㅁ].include?(next_kc.chosung)
-				kc.jongsung = map[ map.keys.find { |e| e.include? kc.jongsung } ]
+			if @next_kc && map.keys.flatten.include?(@kc.jongsung) && %w[ㄴ ㅁ].include?(@next_kc.chosung)
+				@kc.jongsung = map[ map.keys.find { |e| e.include? @kc.jongsung } ]
 
 				true
 			end
@@ -355,12 +345,12 @@ class Korean
 		# 제19항: 받침 ‘ㅁ, ㅇ’ 뒤에 연결되는 ‘ㄹ’은 [ㄴ]으로 발음한다.
 		# [붙임]받침 ‘ㄱ, ㅂ’ 뒤에 연결되는 ‘ㄹ’도 [ㄴ]으로 발음한다.
 		def rule_19
-			if next_kc && next_kc.chosung == 'ㄹ' && %w[ㅁ ㅇ ㄱ ㅂ].include?(kc.jongsung)
-				next_kc.chosung = 'ㄴ'
+			if @next_kc && @next_kc.chosung == 'ㄹ' && %w[ㅁ ㅇ ㄱ ㅂ].include?(@kc.jongsung)
+				@next_kc.chosung = 'ㄴ'
 
-				case kc.jongsung
-				when 'ㄱ' then kc.jongsung = 'ㅇ'
-				when 'ㅂ' then kc.jongsung = 'ㅁ'
+				case @kc.jongsung
+				when 'ㄱ' then @kc.jongsung = 'ㅇ'
+				when 'ㅂ' then @kc.jongsung = 'ㅁ'
 				end
 
 				true
@@ -369,21 +359,21 @@ class Korean
 
 		# 제20항: ‘ㄴ’은 ‘ㄹ’의 앞이나 뒤에서 [ㄹ]로 발음한다.
 		def rule_20
-			return if next_kc.nil?
+			return if @next_kc.nil?
 
 			to = if %w[견란 진란 산량 단력 권력 원령 견례
-						문로 단로 원론 원료 근류].include?(kc_org.to_s + next_kc_org.to_s)
+						문로 단로 원론 원료 근류].include?(@kc_org.to_s + @next_kc_org.to_s)
 					 'ㄴ'
 				 else
 					 'ㄹ'
 				 end
 
-			if kc.jongsung == 'ㄹ' && next_kc.chosung == 'ㄴ'
-				kc.jongsung = next_kc.chosung = to
+			if @kc.jongsung == 'ㄹ' && @next_kc.chosung == 'ㄴ'
+				@kc.jongsung = @next_kc.chosung = to
 
 				true
-			elsif kc.jongsung == 'ㄴ' && next_kc.chosung == 'ㄹ'
-				kc.jongsung = next_kc.chosung = to
+			elsif @kc.jongsung == 'ㄴ' && @next_kc.chosung == 'ㄹ'
+				@kc.jongsung = @next_kc.chosung = to
 
 				true
 			end
@@ -392,10 +382,10 @@ class Korean
 		# 제23항: 받침 ‘ㄱ(ㄲ, ㅋ, ㄳ, ㄺ), ㄷ(ㅅ, ㅆ, ㅈ, ㅊ, ㅌ), ㅂ(ㅍ, ㄼ, ㄿ,ㅄ)’
 		# 뒤에 연결되는 ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’은 된소리로 발음한다.
 		def rule_23
-			return if next_kc.nil?
-			if fortis_map.keys.include?(next_kc.chosung) &&
-				%w[ㄱ ㄲ ㅋ ㄳ ㄺ ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅂ ㅍ ㄼ ㄿ ㅄ].include?(kc.jongsung)
-				next_kc.chosung = fortis_map[next_kc.chosung]
+			return if @next_kc.nil?
+			if fortis_map.keys.include?(@next_kc.chosung) &&
+				%w[ㄱ ㄲ ㅋ ㄳ ㄺ ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅂ ㅍ ㄼ ㄿ ㅄ].include?(@kc.jongsung)
+				@next_kc.chosung = fortis_map[@next_kc.chosung]
 
 				true
 			end
@@ -405,22 +395,22 @@ class Korean
 		# 다만, 피동, 사동의 접미사 ‘-기-’는 된소리로 발음하지 않는다.
 		# 용언 어간에만 적용.
 		def rule_24
-			return if next_kc.nil? || 
-				next_kc.to_s == '기' # FIXME 피동/사동 여부 판단 불가. e.g. 줄넘기
+			return if @next_kc.nil? || 
+				@next_kc.to_s == '기' # FIXME 피동/사동 여부 판단 불가. e.g. 줄넘기
 
 			# FIXME 용언 여부를 판단. 정확한 판단 불가.
-			return unless case kc.jongsung
+			return unless case @kc.jongsung
 			when 'ㄵ'
-				%w[앉 얹].include? kc.to_s
+				%w[앉 얹].include? @kc.to_s
 			when 'ㄻ'
-				%w[젊 닮].include? kc.to_s
+				%w[젊 닮].include? @kc.to_s
 			else
 				false # XXX 일반적인 경우 사전 없이 판단 불가
 			end
 
-			if %w[ㄱ ㄷ ㅅ ㅈ].include?(next_kc.chosung) &&
-				%w[ㄴ ㄵ ㅁ ㄻ ㄼ ㄾ].include?(kc.jongsung)
-				next_kc.chosung = fortis_map[next_kc.chosung]
+			if %w[ㄱ ㄷ ㅅ ㅈ].include?(@next_kc.chosung) &&
+				%w[ㄴ ㄵ ㅁ ㄻ ㄼ ㄾ].include?(@kc.jongsung)
+				@next_kc.chosung = fortis_map[@next_kc.chosung]
 
 				true
 			end
@@ -429,11 +419,11 @@ class Korean
 		# 제25항: 어간 받침 ‘ㄼ, ㄾ’ 뒤에 결합되는 어미의 첫소리 ‘ㄱ, ㄷ, ㅅ, ㅈ’은
 		# 된소리로 발음한다.
 		def rule_25
-			return if next_kc.nil?
+			return if @next_kc.nil?
 
-			if %w[ㄱ ㄷ ㅅ ㅈ].include?(next_kc.chosung) &&
-				%w[ㄼ ㄾ].include?(kc.jongsung)
-				next_kc.chosung = fortis_map[next_kc.chosung]
+			if %w[ㄱ ㄷ ㅅ ㅈ].include?(@next_kc.chosung) &&
+				%w[ㄼ ㄾ].include?(@kc.jongsung)
+				@next_kc.chosung = fortis_map[@next_kc.chosung]
 
 				true
 			end
@@ -448,12 +438,12 @@ class Korean
 		# - ‘-(으)ㄹ’로 시작되는 어미의 경우에도 이에 준한다.
 		def rule_27
 			# FIXME: NOT PROPERLY IMPLEMENTED
-			return if next_kc.nil?
+			return if @next_kc.nil?
 
 			# 비교적 확률이 높은 경우들에 대해서만 처리. "일" 은 제외.
-			if %w[할 갈 날 볼 을 앨 말 힐].include?(kc.to_s) && # kc.jongsung == 'ㄹ' && 
-					%w[ㄱ ㄷ ㅂ ㅅ ㅈ].include?(next_kc.chosung)
-				next_kc.chosung = fortis_map[next_kc.chosung]
+			if %w[할 갈 날 볼 을 앨 말 힐].include?(@kc.to_s) && # @kc.jongsung == 'ㄹ' && 
+					%w[ㄱ ㄷ ㅂ ㅅ ㅈ].include?(@next_kc.chosung)
+				@next_kc.chosung = fortis_map[@next_kc.chosung]
 				true
 			end
 		end
@@ -480,21 +470,21 @@ class Korean
 		# 2. 사이시옷 뒤에 ‘ㄴ, ㅁ’이 결합되는 경우에는 [ㄴ]으로 발음한다. 
 		# 3. 사이시옷 뒤에 ‘이’ 음이 결합되는 경우에는 [ㄴㄴ]으로 발음한다.
 		def rule_30
-			return if next_kc.nil? || kc.jongsung != 'ㅅ'
+			return if @next_kc.nil? || @kc.jongsung != 'ㅅ'
 
-			if %w[ㄱ ㄷ ㅂ ㅅ ㅈ].include? next_kc.chosung
-				kc.jongsung = 'ㄷ' # or nil
-				next_kc.chosung = fortis_map[next_kc.chosung]
-
-				true
-			elsif %w[ㄴ ㅁ].include? next_kc.chosung
-				kc.jongsung = 'ㄴ'
+			if %w[ㄱ ㄷ ㅂ ㅅ ㅈ].include? @next_kc.chosung
+				@kc.jongsung = 'ㄷ' # or nil
+				@next_kc.chosung = fortis_map[@next_kc.chosung]
 
 				true
-			elsif next_kc.chosung == 'ㅇ' &&
-						%w[ㅣ ㅒ ㅖ ㅑ ㅕ ㅛ ㅠ].include?(next_kc.jungsung) &&
-						next_kc.jongsung # PATCH
-				kc.jongsung = next_kc.chosung = 'ㄴ'
+			elsif %w[ㄴ ㅁ].include? @next_kc.chosung
+				@kc.jongsung = 'ㄴ'
+
+				true
+			elsif @next_kc.chosung == 'ㅇ' &&
+						%w[ㅣ ㅒ ㅖ ㅑ ㅕ ㅛ ㅠ].include?(@next_kc.jungsung) &&
+						@next_kc.jongsung # PATCH
+				@kc.jongsung = @next_kc.chosung = 'ㄴ'
 
 				true
 			end

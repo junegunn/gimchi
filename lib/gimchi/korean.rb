@@ -140,8 +140,8 @@ class Korean
 				kc.to_a.each_with_index do | comp, idx |
 					next if comp.nil?
 					comp = rdata[idx][comp] || comp
-					comp = comp[1..-1] if comp[0] == dash &&
-							(romanization.empty? || romanization[-1] =~ /\s/ || comp[1] == 'w')
+					comp = comp[1..-1] if comp[0, 1] == dash &&
+							(romanization.empty? || romanization[-1] =~ /\s/ || comp[1, 1] == 'w')
 					romanization += comp
 				end
 			end
@@ -225,9 +225,11 @@ private
 
 			if alt == false || unit_idx >= 0
 				str = ""
-				{1000 => '천',
-				 100 => '백',
-				 10 => '십'}.each do | u, sub_unit |
+				# Cannot use hash as they're unordered in 1.8
+				[[1000, '천'],
+				 [100,  '백'],
+				 [10,   '십']].each do | arr |
+				 	u, sub_unit = arr
 					str += (nconfig['digits'][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
 					v %= u
 				end
@@ -240,9 +242,9 @@ private
 				digits = nconfig['alt notation']['digits']
 				post_subs = nconfig['alt notation']['post substitution']
 
-				{1000 => '천',
-				 100 => '백',
-				}.each do | u, sub_unit |
+				# Likewise.
+				[[1000, '천'],
+				 [100,  '백']].each do | u, sub_unit |
 					str += (nconfig['digits'][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
 					v %= u
 				end

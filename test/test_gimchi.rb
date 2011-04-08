@@ -77,8 +77,8 @@ class TestGimchi < Test::Unit::TestCase
 		ko = Gimchi::Korean.new
 		assert_equal "천 구백 구십 구", ko.read_number(1999)
 		assert_equal "마이너스 백점일이삼", ko.read_number(- 100.123)
-		assert_equal "천 오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사",
-				ko.read_number("153,191,100,678.3214")
+		assert_equal "오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사",
+				ko.read_number("53,191,100,678.3214")
 
 		# 나이, 시간 ( -살, -시 )
 		assert_equal "나는 스무살", ko.read_number("나는 20살")
@@ -142,6 +142,6 @@ class TestGimchi < Test::Unit::TestCase
 		end
 		puts "#{s} / #{cnt}"
 		# FIXME
-		assert s >= 57
+		assert s >= 58
 	end
 end

@@ -72,8 +72,8 @@ class Korean
 	def read_number str
 		nconfig = config['number']
 		
-		str.to_s.gsub(/([+-]\s*)?[0-9,]*,*[0-9]+(\.[0-9]+)?(\s*.)?/) { 
-			read_number_sub($&, $3)
+		str.to_s.gsub(/([+-]\s*)?[0-9,]*,*[0-9]+(\.[0-9]+(e[+-][0-9]+)?)?(\s*.)?/) { 
+			read_number_sub($&, $4)
 		}
 	end
 
@@ -171,101 +171,120 @@ private
 	def read_number_sub num, next_char = nil
 		nconfig = config['number']
 
-		# To number
-		if num.is_a? String
-			num = num.gsub(/[\s,]/, '')
-			raise ArgumentError.new("Invalid number format") unless num =~ /[-+]?[0-9,]*\.?[0-9]*/
-			num = num.to_f == num.to_i ? num.to_i : num.to_f
-		end
+		num = num.gsub(',', '')
+		num = num.sub(/#{next_char}$/, '') if next_char
+		is_float = num.match(/[\.e]/) != nil
 
 		# Alternative notation for integers with proper suffix
 		alt = false
-		if num.is_a?(Float) == false && nconfig['alt notation']['when suffix'].keys.include?(next_char.to_s.strip)
+		if is_float == false && 
+				nconfig['alt notation']['when suffix'].keys.include?(next_char.to_s.strip)
 			max = nconfig['alt notation']['when suffix'][next_char.strip]['max']
 
-			if max.nil? || num <= max
+			if max.nil? || num.to_i <= max
 				alt = true
 			end
 		end
 
 		# Sign
-		if num < 0
-			num = -1 * num
+		sign = []
+		negative = false
+		if num =~ /^-/
+			num = num.sub(/^-\s*/, '')
+			sign << nconfig['negative']
 			negative = true
-		else
-			negative = false
+		elsif num =~ /^\+/
+			num = num.sub(/^\+\s*/, '')
+			sign << nconfig['positive']
 		end
 
-		if num.is_a? Float
+		if is_float
 			below = nconfig['decimal point']
-			below = nconfig['digits'][0] + below if num < 1
+			below = nconfig['digits'][0] + below if num.to_f < 1
 
-			s = num.to_s
-			if md = s.match(/(.*)e(.*)/)
-				s = md[1].tr '.', ''
+			if md = num.match(/(.*)e(.*)/)
+				dp = md[1].index('.')
+				num = md[1].tr '.', ''
 				exp = md[2].to_i
-				if exp > 0
-					s = s.ljust(exp + 1, '0')
+
+				dp += exp
+				if dp > num.length
+					num = num.ljust(dp, '0')
+					num = num.sub(/^0+([1-9])/, "\\1")
+
+					below = ""
+				elsif dp < 0
+					num = '0.' + '0' * (-dp) + num
 				else
-					s = '0.' + '0' * (-exp - 1) + s
+					num[dp] = '.' + num[dp]
 				end
 			end
-			s.sub(/.*\./, '').each_char do | char |
+			num.sub(/.*\./, '').each_char do | char |
 				below += nconfig['digits'][char.to_i]
-			end
-			num = num.floor.to_i
+			end if num.include? '.'
+			num = num.sub(/\..*/, '')
 		else
 			below = ""
 		end
 
 		tokens = []
 		unit_idx = -1
+		num = num.to_i
 		while num > 0
 			v = num % 10000
 
-			if alt == false || unit_idx >= 0
-				str = ""
-				# Cannot use hash as they're unordered in 1.8
-				[[1000, '천'],
-				 [100,  '백'],
-				 [10,   '십']].each do | arr |
-				 	u, sub_unit = arr
-					str += (nconfig['digits'][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
-					v %= u
+			unit_idx += 1
+			if v > 0
+				if alt == false || unit_idx >= 1
+					str = ""
+					# Cannot use hash as they're unordered in 1.8
+					[[1000, '천'],
+					 [100,  '백'],
+					 [10,   '십']].each do | arr |
+						u, sub_unit = arr
+						str += (nconfig['digits'][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
+						v %= u
+					end
+					str += nconfig['digits'][v] if v > 0
+
+					tokens << str.sub(/ $/, '') + nconfig['units'][unit_idx]
+				else
+					str = ""
+					tenfolds = nconfig['alt notation']['tenfolds']
+					digits = nconfig['alt notation']['digits']
+					alt_post_subs = nconfig['alt notation']['post substitution']
+
+					# Likewise.
+					[[1000, '천'],
+					 [100,  '백']].each do | u, sub_unit |
+						str += (nconfig['digits'][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
+						v %= u
+					end
+
+					str += tenfolds[(v / 10) - 1] if v / 10 > 0
+					v %= 10
+					str += digits[v] if v > 0
+
+					if alt
+						suffix = next_char.strip
+						str = str + suffix
+						alt_post_subs.each do | k, v |
+							str.gsub!(k, v)
+						end
+						str.sub!(/#{suffix}$/, '')
+					end
+					tokens << str.sub(/ $/, '') + nconfig['units'][unit_idx]
 				end
-				str += nconfig['digits'][v] if v > 0
-
-				tokens << str.sub(/ $/, '') + nconfig['units'][unit_idx += 1]
-			else
-				str = ""
-				tenfolds = nconfig['alt notation']['tenfolds']
-				digits = nconfig['alt notation']['digits']
-				post_subs = nconfig['alt notation']['post substitution']
-
-				# Likewise.
-				[[1000, '천'],
-				 [100,  '백']].each do | u, sub_unit |
-					str += (nconfig['digits'][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
-					v %= u
-				end
-
-				str += tenfolds[(v / 10) - 1] if v / 10 > 0
-				v %= 10
-				str += digits[v] if v > 0
-
-				suffix = next_char.strip
-				str = str + suffix
-				post_subs.each do | k, v |
-					str.gsub!(k, v)
-				end
-				str.sub!(/#{suffix}$/, '')
-				tokens << str.sub(/ $/, '') + nconfig['units'][unit_idx += 1]
 			end
 			num /= 10000
 		end
 
-		tokens << nconfig['negative'] if negative
-		tokens.reverse.join(' ') + next_char.to_s + below
+		tokens += sign unless sign.empty?
+		ret = tokens.reverse.join(' ') + below + next_char.to_s
+		nconfig['post substitution'].each do | k, v |
+			ret.gsub!(k, v)
+		end
+		ret
 	end
 end#Korean
 end#Gimchi

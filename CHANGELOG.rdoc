@@ -1,3 +1,7 @@
+=== 0.1.5 / 2011/04/12
+* Removed possible loss of precision during read_number
+* read_number extended to read exponential notation properly.
+
 === 0.1.4 / 2011/04/08
 * Minor improvement in romanization output. -y => y
 

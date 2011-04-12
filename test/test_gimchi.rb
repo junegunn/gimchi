@@ -99,7 +99,7 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal "지금은 일곱시 삼십분", ko.read_number("지금은 7시 30분")
 	end
 
-	def atest_pronounce
+	def test_pronounce
 		require 'yaml'
 		require 'ansi'
 
@@ -136,7 +136,7 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal 'ttok-kkateun kkk', ko.romanize('똑같은 kkk')
 	end
 
-	def atest_romanize
+	def test_romanize
 		ko = Gimchi::Korean.new
 
 		cnt = 0

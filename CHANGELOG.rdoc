@@ -1,3 +1,6 @@
+=== 0.1.6 / 2011/04/13
+* More post substitution for read_number
+
 === 0.1.5 / 2011/04/12
 * Removed possible loss of precision during read_number
 * read_number extended to read exponential notation properly.

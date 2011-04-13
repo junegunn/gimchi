@@ -91,7 +91,11 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal "플러스 십점영", ko.read_number("+ 10.0")
 
 		# 나이, 시간, 개수, 명 ( -살, -시, -개, -명 )
+		assert_equal "나는 이십", ko.read_number("나는 20")
 		assert_equal "나는 스무살", ko.read_number("나는 20살")
+		assert_equal "나는 스물네살", ko.read_number("나는 24살")
+		assert_equal "스무개", ko.read_number("20개")
+		assert_equal "스무 명", ko.read_number("20 명")
 		assert_equal "이십 칠점일살", ko.read_number("27.1살")
 		assert_equal "너는 열세 살", ko.read_number("너는 13 살")
 		assert_equal "백 서른두명", ko.read_number("132명")

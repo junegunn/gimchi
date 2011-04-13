@@ -72,8 +72,8 @@ class Korean
 	def read_number str
 		nconfig = config['number']
 		
-		str.to_s.gsub(/([+-]\s*)?[0-9,]*,*[0-9]+(\.[0-9]+(e[+-][0-9]+)?)?(\s*.)?/) { 
-			read_number_sub($&, $4)
+		str.to_s.gsub(/(([+-]\s*)?[0-9,]*,*[0-9]+(\.[0-9]+(e[+-][0-9]+)?)?)(\s*.)?/) { 
+			read_number_sub($1, $5)
 		}
 	end
 
@@ -168,17 +168,17 @@ class Korean
 	end
 
 private
-	def read_number_sub num, next_char = nil
+	def read_number_sub num, next_char
 		nconfig = config['number']
 
 		num = num.gsub(',', '')
-		num = num.sub(/#{next_char}$/, '') if next_char
+		next_char = next_char.to_s
 		is_float = num.match(/[\.e]/) != nil
 
 		# Alternative notation for integers with proper suffix
 		alt = false
 		if is_float == false && 
-				nconfig['alt notation']['when suffix'].keys.include?(next_char.to_s.strip)
+				nconfig['alt notation']['when suffix'].keys.include?(next_char.strip)
 			max = nconfig['alt notation']['when suffix'][next_char.strip]['max']
 
 			if max.nil? || num.to_i <= max
@@ -265,14 +265,9 @@ private
 					v %= 10
 					str += digits[v] if v > 0
 
-					if alt
-						suffix = next_char.strip
-						str = str + suffix
-						alt_post_subs.each do | k, v |
-							str.gsub!(k, v)
-						end
-						str.sub!(/#{suffix}$/, '')
-					end
+					alt_post_subs.each do | k, v |
+						str.gsub!(k, v)
+					end if alt
 					tokens << str.sub(/ $/, '') + nconfig['units'][unit_idx]
 				end
 			end
@@ -280,7 +275,7 @@ private
 		end
 
 		tokens += sign unless sign.empty?
-		ret = tokens.reverse.join(' ') + below + next_char.to_s
+		ret = tokens.reverse.join(' ') + below + next_char
 		nconfig['post substitution'].each do | k, v |
 			ret.gsub!(k, v)
 		end

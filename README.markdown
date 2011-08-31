@@ -1,0 +1,134 @@
+# gimchi
+
+Gimchi is a simple Ruby gem which knows how to handle Korean strings. It knows
+how to dissect Korean characters into its 3 components, namely chosung,
+jungsung and optional jongsung. It knows how Korean sentences are pronounced
+and how they're written in roman alphabet. 
+
+Gimchi (only partially) implements the following rules dictated by
+The National Institute of The Korean Language (http://www.korean.go.kr)
+* Korean Standard Pronunciation
+* Korean Romanization
+
+## Installation
+```
+gem install gimchi
+```
+
+## Usage
+
+### Creating Gimchi::Korean instance
+```ruby
+require 'gimchi'
+
+ko = Gimchi::Korean.new
+```
+
+### Checks if the given character is in Korean alphabet
+```ruby
+ko.korean_char? 'ㄱ'           # true
+ko.complete_korean_char? 'ㄱ'  # false
+
+ko.korean_char? 'ㅏ'           # true
+ko.complete_korean_char? 'ㅏ'  # false
+
+ko.korean_char? '가'           # true
+ko.complete_korean_char? '가'  # true
+```
+
+### Usage of Gimchi::Korean::Char
+```ruby
+arr = ko.dissect '이것은 한글입니다.'
+  # [이, 것, 은, " ", 한, 글, 입, 니, 다, "."]
+
+arr[4].class                   # Gimchi::Korean::Char
+
+arr[4].chosung                 # "ㅎ"
+arr[4].jungsung                # "ㅏ"
+arr[4].jongsung                # "ㄴ"
+arr[4].to_a                    # ["ㅎ", "ㅏ", "ㄴ"]
+arr[4].to_s                    # "한"
+
+arr[4].chosung = 'ㄷ'
+arr[4].jongsung = 'ㄹ'
+arr[4].to_s                    # "달"
+arr[4].complete?               # true
+arr[4].partial?                # false
+
+arr[4].chosung = nil
+arr[4].jongsung = nil
+arr[4].complete?               # false
+arr[4].partial?                # true
+```
+
+### Reading numbers in Korean
+```ruby
+ko.read_number(1999)         # "천 구백 구십 구"
+ko.read_number(- 100.123)    # "마이너스 백점일이삼"
+ko.read_number("153,191,100,678.3214")
+  	# "천 오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사"
+
+# Age, Time ( -살, -시 )
+ko.read_number("20살")       # "스무살"
+ko.read_number("13 살")      # "열세 살"
+ko.read_number("7시 30분")   # "일곱시 삼십분"
+```
+
+### Standard pronunciation (partially implemented)
+```ruby
+str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 분까지 우릴 조그만 교실로 몰아넣고"
+ko.pronounce str
+  # "돼써 돼써 이제 그런 가르치믄 돼써 매일 아침 일곱 시 삼십 분까지 우릴 조그만 교실로 모라너코"
+
+ko.pronounce str, :slur => true
+  # "돼써 돼써 이제 그런 가르치믄 돼써 매이 라치 밀곱 씨 삼십 뿐까지 우릴 조그만 교실로 모라너코"
+
+ko.pronounce str, :pronounce_each_char => true
+  # "됃어 됃어 이제 그런 가르침은 됃어 매일 아침 일곱 시 삼십 분까지 우릴 조그만 교실로 몰아너고"
+
+ko.pronounce str, :number => false
+  # "돼써 돼써 이제 그런 가르치믄 돼써 매일 아침 7 시 30 분까지 우릴 조그만 교실로 모라너코"
+```
+
+### Romanization (partially implemented)
+```ruby
+str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 분까지 우릴 조그만 교실로 몰아넣고"
+
+ko.romanize str
+  # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo moraneoko"
+ko.romanize str, :slur => true
+  # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-i rachi milgop ssi samsip ppunkkaji uril jogeuman gyosillo moraneoko"
+ko.romanize str, :as_pronounced => false
+  # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
+ko.romanize str, :number => false
+  # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
+```
+
+## Limitation of the implementation
+
+Unfortunately in order to implement the complete specification of Korean
+pronunciation and romanization, we need NLP, huge Korean dictionaries and even
+semantic analysis of the given string. And even with all those complex
+processing, we cannot guarantee 100% accuracy of the output. So yes, that is
+definitely not what this gem tries to achieve. Gimchi tries to achieve "some"
+level of accuracy with relatively simple code.
+
+Currently, Gimchi code contains a lot of ad-hoc (possibly invalid) patches
+that try to improve the quality of the output, which should better be
+refactored anytime soon.
+
+## Contributing to gimchi
+ 
+* Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
+* Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
+* Fork the project
+* Start a feature/bugfix branch
+* Commit and push until you are happy with your contribution
+* Make sure to add tests for it. This is important so I don't break it in a future version unintentionally.
+* Please try not to mess with the Rakefile, version, or history. If you want to have your own version, or is otherwise necessary, that is fine, but please isolate to its own commit so I can cherry-pick around it.
+
+## Copyright
+
+Copyright (c) 2011 Junegunn Choi. See LICENSE.txt for
+further details.
+

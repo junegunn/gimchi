@@ -1,3 +1,8 @@
+=== 0.1.7 / 2011/10/17
+* Bug fix: Fixed reading 0
+* Bug fix: Failing test on 1.8
+* Bug fix: Fixed 'incompatible encoding regexp' problem on 1.9
+
 === 0.1.6 / 2011/04/13
 * More post substitution for read_number
 

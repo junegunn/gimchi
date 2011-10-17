@@ -1,5 +1,6 @@
 # encoding: UTF-8
 
+$LOAD_PATH.unshift File.dirname(__FILE__)
 require 'helper'
 
 class TestGimchi < Test::Unit::TestCase
@@ -75,6 +76,9 @@ class TestGimchi < Test::Unit::TestCase
 
 	def test_read_number
 		ko = Gimchi::Korean.new
+		assert_equal "영", ko.read_number(0)
+		assert_equal "일", ko.read_number(1)
+		assert_equal "구", ko.read_number(9)
 		assert_equal "천 구백 구십 구", ko.read_number(1999)
 		assert_equal "마이너스 백점일이삼", ko.read_number(- 100.123)
 		assert_equal "오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사오육칠",

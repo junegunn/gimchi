@@ -17,10 +17,9 @@ class Korean
     # @param [Gimchi::Korean] kor Gimchi::Korean instance
     # @param [String] kchar Korean character string
     def initialize kor, kchar
-      raise ArgumentError('Not a korean character') unless kor.korean_char? kchar
+      raise ArgumentError.new('Not a korean character') unless kor.korean_char? kchar
 
       @kor = kor
-      @cur = []
       if @kor.complete_korean_char? kchar
         c = kchar.unpack('U').first
         n = c - 0xAC00
@@ -99,6 +98,10 @@ class Korean
     # e.g. ㅇ, ㅏ
     def partial?
       chosung.nil? || jungsung.nil?
+    end
+
+    def inspect
+      "#{to_s}(#{to_a.join('/')})"
     end
 
   private

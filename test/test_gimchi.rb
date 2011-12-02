@@ -7,14 +7,37 @@ class TestGimchi < Test::Unit::TestCase
 	def test_korean_char
 		ko = Gimchi::Korean.new
 		assert_equal true, ko.korean_char?('ㄱ')  # true
+		assert_equal true, ko.kchar?('ㄱ')  # true
 		assert_equal true, ko.korean_char?('ㅏ')  # true
 		assert_equal true, ko.korean_char?('가')  # true
 		assert_equal true, ko.korean_char?('값')  # true
+		assert_equal true, ko.kchar?('값')  # true
 
 		assert_equal false, ko.korean_char?('a')   # false
 		assert_equal false, ko.korean_char?('1')   # false
 		assert_raise(ArgumentError) { ko.korean_char?('두자') }
+		assert_raise(ArgumentError) { ko.kchar?('두자') }
 	end
+
+  def test_kchar
+		ko = Gimchi::Korean.new
+    # Alias
+    [ko.kchar('한'), ko.korean_char('한')].each do |kc|
+      assert_equal Gimchi::Korean::Char, kc.class
+      assert_equal "ㅎ", kc.chosung
+      assert_equal "ㅏ", kc.jungsung
+      assert_equal "ㄴ", kc.jongsung
+      assert_equal ["ㅎ", "ㅏ", "ㄴ"], kc.to_a
+      assert_equal "한", kc.to_s
+      assert_equal true, kc.complete?
+      assert_equal false, kc.partial?
+    end
+
+		assert_raise(ArgumentError) { ko.kchar('한글') }
+		assert_raise(ArgumentError) { ko.kchar('A') }
+
+    assert_equal true, ko.kchar("ㅏ").partial?
+  end
 
 	def test_complete_korean_char
 		ko = Gimchi::Korean.new
@@ -44,6 +67,7 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal 'ㅇ', ch.chosung
 		assert_equal 'ㅡ', ch.jungsung
 		assert_equal 'ㄴ', ch.jongsung
+    assert_equal "은(ㅇ/ㅡ/ㄴ)", ch.inspect
 
 		ch.chosung = 'ㄱ'
 		ch.jongsung = 'ㅁ'

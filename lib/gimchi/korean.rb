@@ -56,6 +56,7 @@ class Korean
     complete_korean_char?(ch) || 
       (chosungs + jungsungs + jongsungs).include?(ch)
   end
+  alias kchar? korean_char?
 
   # Checks if the given character is a "complete" korean character.
   # "Complete" Korean character must have chosung and jungsung, with optional jongsung.
@@ -75,6 +76,14 @@ class Korean
       korean_char?(c) ? Korean::Char.new(self, c) : c
     }
   end
+
+  # Returns a Korean::Char object for the given Korean character.
+  # @param [String] ch Korean character in String
+  # @return [Korean::Char] Korean::Char instance
+  def kchar ch
+    Korean::Char.new(self, ch)
+  end
+  alias korean_char kchar
 
   # Reads numeric expressions in Korean way.
   # @param [String, Number] str Numeric type or String containing numeric expressions

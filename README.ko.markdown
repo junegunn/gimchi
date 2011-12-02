@@ -1,30 +1,31 @@
 # gimchi
 
-Gimchi is a simple Ruby gem which knows how to handle Korean strings. It knows
-how to dissect Korean characters into its 3 components, namely chosung,
-jungsung and optional jongsung. It knows how Korean sentences are pronounced
-and how they're written in roman alphabet. 
+## 개요
 
-Gimchi (only partially) implements the following rules dictated by
-The National Institute of The Korean Language (http://www.korean.go.kr)
-* Korean Standard Pronunciation
-* Korean Romanization
+Gimchi는 한글 스트링을 다롭니다.
+국립 국어원 어문 규정에 정의된 한글의 표준 발음법과
+로마자 표기법을 (일부) 구현한 것이 주요 기능입니다.
 
-## Installation
+또한 다음의 기능들을 제공합니다.
+- 주어진 캐릭터가 한글인지 판단
+- 한글을 초성, 중성, 종성으로 분리하고, 이를 다시 합치는 기능
+- 숫자 표기를 한글 표현으로 변환
+
+## 설치
 ```
 gem install gimchi
 ```
 
-## Usage
+## 사용법
 
-### Creating Gimchi::Korean instance
+### Gimchi::Korean 인스턴스의 생성
 ```ruby
 require 'gimchi'
 
 ko = Gimchi::Korean.new
 ```
 
-### Checks if the given character is in Korean alphabet
+### 한글 캐릭터 여부 판단
 ```ruby
 ko.korean_char? 'ㄱ'           # true
 ko.complete_korean_char? 'ㄱ'  # false
@@ -35,11 +36,11 @@ ko.complete_korean_char? 'ㅏ'  # false
 ko.korean_char? '가'           # true
 ko.complete_korean_char? '가'  # true
 
-# Shorthand of korean_char?
+# Alias of korean_char?
 ko.kchar? '가'                 # true
 ```
 
-### Usage of Gimchi::Korean::Char
+### Gimchi::Korean::Char
 ```ruby
 kc = ko.kchar "한"
 kc.class                   # Gimchi::Korean::Char
@@ -76,20 +77,20 @@ arr = ko.dissect '이것은 한글입니다.'
 arr[0].class               # Gimchi::Korean::Char
 ```
 
-### Reading numbers in Korean
+### 숫자 읽기
 ```ruby
 ko.read_number(1999)         # "천 구백 구십 구"
 ko.read_number(- 100.123)    # "마이너스 백점일이삼"
 ko.read_number("153,191,100,678.3214")
-  	# "천 오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사"
+    # "천 오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사"
 
-# Age, Time ( -살, -시 )
+# 나이, 시간 ( -살, -시 )
 ko.read_number("20살")       # "스무살"
 ko.read_number("13 살")      # "열세 살"
 ko.read_number("7시 30분")   # "일곱시 삼십분"
 ```
 
-### Standard pronunciation (partially implemented)
+### 표준 발음 (부분 구현)
 ```ruby
 str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 분까지 우릴 조그만 교실로 몰아넣고"
 ko.pronounce str
@@ -105,7 +106,7 @@ ko.pronounce str, :number => false
   # "돼써 돼써 이제 그런 가르치믄 돼써 매일 아침 7 시 30 분까지 우릴 조그만 교실로 모라너코"
 ```
 
-### Romanization (partially implemented)
+### 로마자 표기 (부분 구현)
 ```ruby
 str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 분까지 우릴 조그만 교실로 몰아넣고"
 
@@ -119,18 +120,15 @@ ko.romanize str, :number => false
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
 ```
 
-## Limitation of the implementation
+## 구현의 한계
 
-Unfortunately in order to implement the complete specification of Korean
-pronunciation and romanization, we need NLP, huge Korean dictionaries and even
-semantic analysis of the given string. And even with all those complex
-processing, we cannot guarantee 100% accuracy of the output. So yes, that is
-definitely not what this gem tries to achieve. Gimchi tries to achieve "some"
-level of accuracy with relatively simple code.
-
-Currently, Gimchi code contains a lot of ad-hoc (possibly invalid) patches
-that try to improve the quality of the output, which should better be
-refactored anytime soon.
+표준 발음법과 로마어 표기법을 모두 구현하기 위해서는 형태소 분석과 충분한
+사전, 그리고 문맥의 의미 분석이 필요합니다. 이 모든 것이 준비된다고 할 지라도
+완벽한 결과를 얻는 것은 불가능합니다.
+이는 현재 gimchi가 목표로 하는 것이 아니며 gimchi는 간단한 구현으로 어느 수준
+이상의 결과를 얻는 것을 목표로 합니다. 현재 구현의 한계 내에서 정확도를 올리기
+위해 Ad-hoc한 patch 등이 코드에 상당량 포함된 상태인데 이를 정제하고 체계화하는
+노력이 필요합니다.
 
 ## Contributing to gimchi
  

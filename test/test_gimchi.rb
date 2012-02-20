@@ -52,10 +52,19 @@ class TestGimchi < Test::Unit::TestCase
 		assert_raise(ArgumentError) { ko.korean_char?('두자') }
 	end
 
-	def test_dissect
+  def test_dissect
 		ko = Gimchi::Korean.new
 
-		arr = ko.dissect '이것은 한글입니다.'
+		arr = ko.dissect '이것은 Hangul 입니다.'
+    assert_equal ["ㅇ", "ㅣ", "ㄱ", "ㅓ", "ㅅ", "ㅇ", "ㅡ", "ㄴ", " ", 
+                  "H", "a", "n", "g", "u", "l", " ", "ㅇ", "ㅣ", "ㅂ",
+                  "ㄴ", "ㅣ", "ㄷ", "ㅏ", "."], arr
+  end
+
+	def test_convert
+		ko = Gimchi::Korean.new
+
+		arr = ko.convert '이것은 한글입니다.'
 		# [이, 것, 은, " ", 한, 글, 입, 니, 다, "."]
 
 		assert_equal 10, arr.length

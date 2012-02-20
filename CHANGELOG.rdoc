@@ -1,5 +1,10 @@
+=== 0.1.9 / 2012/02/20
+* Bug fix: Failing test on 1.8
+* `Gimchi::Korean#dissect` renamed to `Gimchi::Korean#convert`
+* `Gimchi::korean#dissect` completely dissects the given String into an Array of Korean character components in String
+
 === 0.1.8 / 2011/12/02
-* Added Gimchi::Korean#kchar
+* Added `Gimchi::Korean#kchar`
 
 === 0.1.7 / 2011/10/17
 * Bug fix: Fixed reading 0
@@ -23,10 +28,10 @@
 * Bug fix in pronouncer.rb. It was undetectable on Ruby 1.9, but on 1.8
 
 === 0.1.1 / 2011/04/07
-* Removed Korean::Char#org
+* Removed Gimchi::Korean::Char#org
 * Code refactoring
-* Korean#romanize no more capitalizes the output string
-* Korean#romanize does not affect non-Korean characters
+* `Gimchi::Korean#romanize` no more capitalizes the output string
+* `Gimchi::Korean#romanize` does not affect non-Korean characters
 * yard documentation
 
 === 0.1.0 / 2011/04/05

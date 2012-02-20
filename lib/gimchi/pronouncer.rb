@@ -17,7 +17,7 @@ class Korean
               (options[:pronounce_each_char] ? '1' : '2')] - options[:except]
 
       # Dissecting
-      @chars = @korean.dissect str
+      @chars = @korean.convert str
       @orig_chars = @chars.dup
 
       # Padding
@@ -299,7 +299,7 @@ class Korean
 
       word = @kc.to_s + @next_kc.to_s
       if map.keys.include? word
-        new_char = @korean.dissect(map[word].scan(/./mu)[1])[0]
+        new_char = @korean.kchar(map[word].scan(/./mu)[1])
         @next_kc.chosung = new_char.chosung
         @next_kc.jongsung = new_char.jongsung
 

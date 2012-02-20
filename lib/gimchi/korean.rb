@@ -51,7 +51,7 @@ class Korean
   # Checks if the given character is a korean character.
   # @param [String] ch A string of size 1
   def korean_char? ch
-    raise ArgumentError.new('Lengthy input') if ch.length > 1
+    raise ArgumentError.new('Lengthy input') if str_length(ch) > 1
 
     complete_korean_char?(ch) || 
       (chosungs + jungsungs + jongsungs).include?(ch)
@@ -62,7 +62,7 @@ class Korean
   # "Complete" Korean character must have chosung and jungsung, with optional jongsung.
   # @param [String] ch A string of size 1
   def complete_korean_char? ch
-    raise ArgumentError.new('Lengthy input') if ch.length > 1
+    raise ArgumentError.new('Lengthy input') if str_length(ch) > 1
 
     # Range of Korean chracters in Unicode 2.0: AC00(가) ~ D7A3(힣)
     ch.unpack('U').all? { | c | c >= 0xAC00 && c <= 0xD7A3 }
@@ -71,9 +71,18 @@ class Korean
   # Splits the given string into an array of Korean::Char's and Strings of length 1.
   # @param [String] str Input string.
   # @return [Array] Mixed array of Korean::Char instances and Strings of length 1 (for non-korean characters)
-  def dissect str
+  def convert str
     str.each_char.map { |c| 
-      korean_char?(c) ? Korean::Char.new(self, c) : c
+      korean_char?(c) ? kchar(c) : c
+    }
+  end
+
+  # Splits the given string into an array of Korean character components
+  # @param [String] str Input string.
+  # @return [Array] Array of Korean character components
+  def dissect str
+    str.each_char.inject([]) { |arr, c| 
+      arr += korean_char?(c) ? kchar(c).to_a.compact : [c]
     }
   end
 
@@ -155,7 +164,7 @@ class Korean
     romanization = ""
 
     romanize_chunk = lambda do | chunk |
-      dissect(chunk).each do | kc |
+      convert(chunk).each do | kc |
         kc.to_a.each_with_index do | comp, idx |
           next if comp.nil?
           comp = rdata[idx][comp] || comp
@@ -187,6 +196,10 @@ class Korean
   end
 
 private
+  def str_length str
+    str.length
+  end
+
   def read_number_sub num, next_char
     nconfig = config['number']
 

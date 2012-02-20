@@ -71,10 +71,16 @@ kc.partial?                # true
 kc = ko.korean_char "한"
 
 # Array of Gimchi::Korean::Char's
-arr = ko.dissect '이것은 한글입니다.'
+arr = ko.convert '이것은 한글입니다.'
   # [이, 것, 은, " ", 한, 글, 입, 니, 다, "."]
 
 arr[0].class               # Gimchi::Korean::Char
+
+# Dissects given String
+arr = ko.dissect '이것은 한글입니다.'
+  # ["ㅇ", "ㅣ", "ㄱ", "ㅓ", "ㅅ", "ㅇ", "ㅡ", "ㄴ", " ", 
+  #  "H", "a", "n", "g", "u", "l", " ", "ㅇ", "ㅣ", "ㅂ",
+  #  "ㄴ", "ㅣ", "ㄷ", "ㅏ", "."]
 ```
 
 ### 숫자 읽기

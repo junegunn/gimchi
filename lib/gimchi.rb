@@ -18,10 +18,15 @@ class Gimchi
     end
 
     [
+      :decompose,
+      :compose,
       :korean_char?,
       :complete_korean_char?,
       :kchar,
       :kchar?,
+      :chosung?,
+      :jungsung?,
+      :jongsung?,
       :read_number,
       :pronounce,
       :romanize
@@ -74,6 +79,32 @@ class Gimchi
     @jungsung_set = Set[*@jungsungs]
     @jongsung_set = Set[*@jongsungs]
     @all          = @chosung_set + @jungsung_set + @jongsung_set
+  end
+
+  # Decompose a Korean character into 3 components
+  # @param [String] ch Korean character
+  # @return [Array]
+  def decompose ch
+    kchar(ch).to_a
+  end
+
+  # Compose 3 elements into a Korean character String
+  # @param [String] chosung
+  # @param [String] jungsung
+  # @param [String] jongsung
+  # @return [String]
+  def compose chosung, jungsung = nil, jongsung = nil
+    if chosung.nil? && jungsung.nil?
+      ""
+    elsif chosung && jungsung
+      n1, n2, n3 =
+      n1 = chosungs.index(chosung) || 0
+      n2 = jungsungs.index(jungsung) || 0
+      n3 = ([nil] + jongsungs).index(jongsung) || 0
+      [ 0xAC00 + n1 * (21 * 28) + n2 * 28 + n3 ].pack('U')
+    else
+      chosung || jungsung
+    end
   end
 
   # @param [String] ch

@@ -13,12 +13,12 @@ class Gimchi
     # @return [String] Jongsung component of this character.
     attr_reader :jongsung
 
-    # @param [Gimchi] kor Gimchi instance
+    # @param [Gimchi] gimchi Gimchi instance
     # @param [String] kchar Korean character string
-    def initialize kor, kchar
-      raise ArgumentError.new('Not a korean character') unless kor.korean_char? kchar
+    def initialize gimchi, kchar
+      raise ArgumentError.new('Not a korean character') unless gimchi.korean_char? kchar
 
-      @gimchi = kor
+      @gimchi = gimchi
       if @gimchi.complete_korean_char? kchar
         c = kchar.unpack('U').first
         n = c - 0xAC00
@@ -43,17 +43,7 @@ class Gimchi
     # Recombines components into a korean character.
     # @return [String] Combined korean character
     def to_s
-      if chosung.nil? && jungsung.nil?
-        ""
-      elsif chosung && jungsung
-        n1, n2, n3 =
-        n1 = @gimchi.chosungs.index(chosung) || 0
-        n2 = @gimchi.jungsungs.index(jungsung) || 0
-        n3 = ([nil] + @gimchi.jongsungs).index(jongsung) || 0
-        [ 0xAC00 + n1 * (21 * 28) + n2 * 28 + n3 ].pack('U')
-      else
-        chosung || jungsung
-      end
+      @gimchi.compose chosung, jungsung, jongsung
     end
 
     # Sets the chosung component.

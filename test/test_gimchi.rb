@@ -189,4 +189,28 @@ class TestGimchi < Test::Unit::TestCase
 		# FIXME
 		assert s >= 63
 	end
+
+  def test_cho_jung_jongsung?
+    c, j, jo = Gimchi::Char("달").to_a
+    assert Gimchi.chosung?(c)
+    assert Gimchi.jungsung?(j)
+    assert Gimchi.jongsung?(jo)
+  end
+
+  def test_compose_decompose
+    ret = Gimchi.decompose("한")
+    assert ret.is_a?(Array)
+    assert_equal 'ㅎ', ret[0]
+    assert_equal 'ㅏ', ret[1]
+    assert_equal 'ㄴ', ret[2]
+
+    assert_equal '한', Gimchi.compose(*ret)
+
+    ret = Gimchi.decompose("ㅋ")
+    assert_equal 'ㅋ', ret[0]
+    assert_equal nil, ret[1]
+    assert_equal nil, ret[2]
+
+    assert_equal 'ㅋ', Gimchi.compose(*ret)
+  end
 end

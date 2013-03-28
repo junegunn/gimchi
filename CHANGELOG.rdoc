@@ -1,3 +1,6 @@
+=== 0.2.0 / 2013/03/28
+* Completely backward-incompatable release :p
+
 === 0.1.9 / 2012/02/20
 * Bug fix: Failing test on 1.8
 * `Gimchi::Korean#dissect` renamed to `Gimchi::Korean#convert`

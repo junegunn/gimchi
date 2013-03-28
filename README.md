@@ -20,7 +20,9 @@ The National Institute of The Korean Language (http://www.korean.go.kr)
 gem install gimchi
 ```
 
-## Composing and decomposing Korean character
+## Usage
+
+### Composing and decomposing Korean character
 
 ```ruby
 chosung, jungsung, jongsung = Gimchi.decompose "한"

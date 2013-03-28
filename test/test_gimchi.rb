@@ -136,6 +136,9 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal "백 서른두명", Gimchi.read_number("132명")
 		assert_equal "이천 오백 아흔아홉개", Gimchi.read_number("2,599개")
 		assert_equal "지금은 일곱시 삼십분", Gimchi.read_number("지금은 7시 30분")
+
+    # No way!
+    assert_raise(ArgumentError) { Gimchi.read_number 10 ** 100 }
 	end
 
 	def test_pronounce

@@ -339,6 +339,7 @@ private
           end
           str += nconfig[:digits][v] if v > 0
 
+          raise RangeError, "number too large" unless nconfig[:units][unit_idx]
           tokens << str.sub(/ $/, '') + nconfig[:units][unit_idx]
         else
           str = ""

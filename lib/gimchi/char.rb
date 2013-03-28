@@ -1,8 +1,7 @@
 # encoding: UTF-8
 
-module Gimchi
-class Korean
-  # Class representing each Korean character. Its three components, 
+class Gimchi
+  # Class representing each Korean character. Its three components,
   # `chosung', `jungsung' and `jongsung' can be get and set.
   #
   # `to_s' merges components into a String. `to_a' returns the three components.
@@ -14,13 +13,13 @@ class Korean
     # @return [String] Jongsung component of this character.
     attr_reader :jongsung
 
-    # @param [Gimchi::Korean] kor Gimchi::Korean instance
+    # @param [Gimchi] kor Gimchi instance
     # @param [String] kchar Korean character string
     def initialize kor, kchar
       raise ArgumentError.new('Not a korean character') unless kor.korean_char? kchar
 
-      @kor = kor
-      if @kor.complete_korean_char? kchar
+      @gimchi = kor
+      if @gimchi.complete_korean_char? kchar
         c = kchar.unpack('U').first
         n = c - 0xAC00
         # '가' ~ '깋' -> 'ㄱ'
@@ -29,14 +28,14 @@ class Korean
         n = n % (21 * 28)
         n2 = n / 28;
         n3 = n % 28;
-        self.chosung = @kor.chosungs[n1]
-        self.jungsung = @kor.jungsungs[n2]
-        self.jongsung = ([nil] + @kor.jongsungs)[n3]
-      elsif @kor.chosungs.include? kchar
+        self.chosung = @gimchi.chosungs[n1]
+        self.jungsung = @gimchi.jungsungs[n2]
+        self.jongsung = ([nil] + @gimchi.jongsungs)[n3]
+      elsif @gimchi.chosung? kchar
         self.chosung = kchar
-      elsif @kor.jungsungs.include? kchar
+      elsif @gimchi.jungsung? kchar
         self.jungsung = kchar
-      elsif @kor.jongsungs.include? kchar
+      elsif @gimchi.jongsung? kchar
         self.jongsung = kchar
       end
     end
@@ -47,10 +46,10 @@ class Korean
       if chosung.nil? && jungsung.nil?
         ""
       elsif chosung && jungsung
-        n1, n2, n3 = 
-        n1 = @kor.chosungs.index(chosung) || 0
-        n2 = @kor.jungsungs.index(jungsung) || 0
-        n3 = ([nil] + @kor.jongsungs).index(jongsung) || 0
+        n1, n2, n3 =
+        n1 = @gimchi.chosungs.index(chosung) || 0
+        n2 = @gimchi.jungsungs.index(jungsung) || 0
+        n3 = ([nil] + @gimchi.jongsungs).index(jongsung) || 0
         [ 0xAC00 + n1 * (21 * 28) + n2 * 28 + n3 ].pack('U')
       else
         chosung || jungsung
@@ -58,28 +57,28 @@ class Korean
     end
 
     # Sets the chosung component.
-    # @param [String] 
+    # @param [String]
     def chosung= c
       raise ArgumentError.new('Invalid chosung component') if
-          c && @kor.chosungs.include?(c) == false
-      @chosung = c && c.dup.extend(Component).tap { |e| e.kor = @kor }
+          c && @gimchi.chosung?(c) == false
+      @chosung = c && c.dup.extend(Component).tap { |e| e.kor = @gimchi }
     end
 
     # Sets the jungsung component
-    # @param [String] 
+    # @param [String]
     def jungsung= c
       raise ArgumentError.new('Invalid jungsung component') if
-          c && @kor.jungsungs.include?(c) == false
-      @jungsung = c && c.dup.extend(Component).tap { |e| e.kor = @kor }
+          c && @gimchi.jungsung?(c) == false
+      @jungsung = c && c.dup.extend(Component).tap { |e| e.kor = @gimchi }
     end
 
     # Sets the jongsung component
     #
-    # @param [String] 
+    # @param [String]
     def jongsung= c
       raise ArgumentError.new('Invalid jongsung component') if
-          c && @kor.jongsungs.include?(c) == false
-      @jongsung = c && c.dup.extend(Component).tap { |e| e.kor = @kor }
+          c && @gimchi.jongsung?(c) == false
+      @jongsung = c && c.dup.extend(Component).tap { |e| e.kor = @gimchi }
     end
 
     # Returns Array of three components.
@@ -105,22 +104,21 @@ class Korean
     end
 
   private
-    # Three components of Korean::Char are extended to support #vowel? and #consonant? method.
+    # Three components of Gimchi::Char are extended to support #vowel? and #consonant? method.
     module Component
       # @return [Korean] Hosting Korean instance
       attr_accessor :kor
 
       # Is this component a vowel?
       def vowel?
-        kor.jungsungs.include? self
+        kor.jungsung? self
       end
 
       # Is this component a consonant?
       def consonant?
-        self != 'ㅇ' && kor.chosungs.include?(self)
+        self != 'ㅇ' && kor.chosung?(self)
       end
     end#Component
   end#Char
-end#Korean
 end#Gimchi
 

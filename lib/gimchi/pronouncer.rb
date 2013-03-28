@@ -1,23 +1,23 @@
 # encoding: UTF-8
 
-module Gimchi
-class Korean
+class Gimchi
   # Private class.
   # Partial implementation of Korean pronouncement pronunciation rules specified in
   # http://http://www.korean.go.kr/
+  # @private
   class Pronouncer
   private
-    def initialize korean
-      @korean = korean
-      @pconfig = korean.config['pronouncer']
+    def initialize gimchi
+      @gimchi = gimchi
+      @pconfig = gimchi.config[:pronouncer]
     end
 
     def pronounce! str, options = {}
-      @sequence = @pconfig['transformation']['sequence for ' +
-              (options[:pronounce_each_char] ? '1' : '2')] - options[:except]
+      @sequence = @pconfig[:transformation][
+        "sequence_for_#{options[:each_char] ? '1' : '2'}".to_sym] - options[:except]
 
       # Dissecting
-      @chars = @korean.convert str
+      @chars = str.each_char.map { |c| @gimchi.kchar(c) rescue c }
       @orig_chars = @chars.dup
 
       # Padding
@@ -35,9 +35,9 @@ class Korean
         # Transform one by one
         applied += (0...@chars.length).inject([]) { | arr, i | arr + transform(i); }
 
-        # Post-processing (actually just for :pronounce_each_char option)
-        @chars.select { |c| c.is_a?(Korean::Char) && c.jongsung }.each do | c |
-          c.jongsung = @pconfig['jongsung sound'][c.jongsung]
+        # Post-processing (actually just for :each_char option)
+        @chars.select { |c| c.is_a?(Gimchi::Char) && c.jongsung }.each do | c |
+          c.jongsung = @pconfig[:jongsung_sound][c.jongsung]
         end
 
         break unless options[:slur]
@@ -52,20 +52,20 @@ class Korean
       kc = @chars[@cursor]
 
       # Not korean
-      return [] unless kc.is_a? Korean::Char
+      return [] unless kc.is_a? Gimchi::Char
 
       # Setting up variables for fast lookup
       @kc = kc
-      @next_kc = (nkc = @chars[@cursor + 1]).is_a?(Korean::Char) ? nkc : nil
+      @next_kc = (nkc = @chars[@cursor + 1]).is_a?(Gimchi::Char) ? nkc : nil
       @kc_org = @initial_chars[@cursor]
-      @next_kc_org = (nkco = @initial_chars[@cursor + 1]).is_a?(Korean::Char) ? nkco : nil
+      @next_kc_org = (nkco = @initial_chars[@cursor + 1]).is_a?(Gimchi::Char) ? nkco : nil
 
       # Cannot properly pronounce
       return [] if @kc.chosung.nil? && @kc.jungsung.nil? && @kc.jongsung.nil?
 
       applied = []
       not_todo = []
-      blocking_rule = @pconfig['transformation']['blocking rule']
+      blocking_rule = @pconfig[:transformation][:blocking_rule]
       @sequence.each do | rule |
         next if not_todo.include?(rule)
 
@@ -78,7 +78,7 @@ class Korean
     end
 
     def pad c
-      return unless c.is_a? Korean::Char
+      return unless c.is_a? Gimchi::Char
 
       c.chosung = 'ㅇ'  if c.chosung.nil?
       c.jungsung = 'ㅡ' if c.jungsung.nil?
@@ -86,12 +86,12 @@ class Korean
 
     # shortcut
     def fortis_map
-      @korean.config['structure']['fortis map']
+      @gimchi.config[:structure][:fortis_map]
     end
 
     # shortcut
     def double_consonant_map
-      @korean.config['structure']['double consonant map']
+      @gimchi.config[:structure][:double_consonant_map]
     end
 
     # 제5항: ‘ㅑ ㅒ ㅕ ㅖ ㅘ ㅙ ㅛ ㅝ ㅞ ㅠ ㅢ’는 이중 모음으로 발음한다.
@@ -193,7 +193,7 @@ class Korean
         'ㄱ' => 'ㅋ',
         'ㄷ' => 'ㅌ',
         'ㅈ' => 'ㅊ' }
-        if %w[ㅎ ㄶ ㅀ].include?(@kc.jongsung) 
+        if %w[ㅎ ㄶ ㅀ].include?(@kc.jongsung)
           # 12-1
           if map_12_1.keys.include?(@next_kc.chosung)
             @next_kc.chosung = map_12_1[@next_kc.chosung]
@@ -277,7 +277,7 @@ class Korean
 
       if false && %w[ㅏ ㅓ ㅗ ㅜ ㅟ].include?(@next_kc.jungsung) &&
           %[ㅆ ㄲ ㅈ ㅊ ㄵ ㄻ ㄾ ㄿ ㄺ].include?(@kc.jongsung) == false # PATCH
-        @next_kc.chosung = @pconfig['jongsung sound'][ @kc.jongsung ]
+        @next_kc.chosung = @pconfig[:jongsung_sound][ @kc.jongsung ]
         @kc.jongsung = nil
 
         true
@@ -299,7 +299,7 @@ class Korean
 
       word = @kc.to_s + @next_kc.to_s
       if map.keys.include? word
-        new_char = @korean.kchar(map[word].scan(/./mu)[1])
+        new_char = @gimchi.kchar(map[word].scan(/./mu)[1])
         @next_kc.chosung = new_char.chosung
         @next_kc.jongsung = new_char.jongsung
 
@@ -331,8 +331,8 @@ class Korean
     # ㄿ, ㅄ)’은 ‘ㄴ, ㅁ’ 앞에서 [ㅇ, ㄴ, ㅁ]으로 발음한다.
     def rule_18
       map = {
-        %w[ㄱ ㄲ ㅋ ㄳ ㄺ] => 'ㅇ', 
-        %w[ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅎ] => 'ㄴ', 
+        %w[ㄱ ㄲ ㅋ ㄳ ㄺ] => 'ㅇ',
+        %w[ㄷ ㅅ ㅆ ㅈ ㅊ ㅌ ㅎ] => 'ㄴ',
         %w[ㅂ ㅍ ㄼ ㄿ ㅄ] => 'ㅁ'
       }
       if @next_kc && map.keys.flatten.include?(@kc.jongsung) && %w[ㄴ ㅁ].include?(@next_kc.chosung)
@@ -395,7 +395,7 @@ class Korean
     # 다만, 피동, 사동의 접미사 ‘-기-’는 된소리로 발음하지 않는다.
     # 용언 어간에만 적용.
     def rule_24
-      return if @next_kc.nil? || 
+      return if @next_kc.nil? ||
         @next_kc.to_s == '기' # FIXME 피동/사동 여부 판단 불가. e.g. 줄넘기
 
       # FIXME 용언 여부를 판단. 정확한 판단 불가.
@@ -441,7 +441,7 @@ class Korean
       return if @next_kc.nil?
 
       # 비교적 확률이 높은 경우들에 대해서만 처리. "일" 은 제외.
-      if %w[할 갈 날 볼 을 앨 말 힐].include?(@kc.to_s) && # @kc.jongsung == 'ㄹ' && 
+      if %w[할 갈 날 볼 을 앨 말 힐].include?(@kc.to_s) && # @kc.jongsung == 'ㄹ' &&
           %w[ㄱ ㄷ ㅂ ㅅ ㅈ].include?(@next_kc.chosung)
         @next_kc.chosung = fortis_map[@next_kc.chosung]
         true
@@ -467,7 +467,7 @@ class Korean
     # 1. ‘ㄱ, ㄷ, ㅂ, ㅅ, ㅈ’으로 시작하는 단어 앞에 사이시옷이 올 때는 이들
     # 자음만을 된소리로 발음하는 것을 원칙으로 하되, 사이시옷을 [ㄷ]으로
     # 발음하는 것도 허용한다.
-    # 2. 사이시옷 뒤에 ‘ㄴ, ㅁ’이 결합되는 경우에는 [ㄴ]으로 발음한다. 
+    # 2. 사이시옷 뒤에 ‘ㄴ, ㅁ’이 결합되는 경우에는 [ㄴ]으로 발음한다.
     # 3. 사이시옷 뒤에 ‘이’ 음이 결합되는 경우에는 [ㄴㄴ]으로 발음한다.
     def rule_30
       return if @next_kc.nil? || @kc.jongsung != 'ㅅ'
@@ -490,5 +490,4 @@ class Korean
       end
     end
   end#Pronouncer
-end#Korean
 end#Gimchi

@@ -18,31 +18,24 @@ gem install gimchi
 
 ## 사용법
 
-### Gimchi::Korean 인스턴스의 생성
-```ruby
-require 'gimchi'
-
-ko = Gimchi::Korean.new
-```
-
 ### 한글 캐릭터 여부 판단
 ```ruby
-ko.korean_char? 'ㄱ'           # true
-ko.complete_korean_char? 'ㄱ'  # false
+Gimchi.korean_char? 'ㄱ'           # true
+Gimchi.complete_korean_char? 'ㄱ'  # false
 
-ko.korean_char? 'ㅏ'           # true
-ko.complete_korean_char? 'ㅏ'  # false
+Gimchi.korean_char? 'ㅏ'           # true
+Gimchi.complete_korean_char? 'ㅏ'  # false
 
-ko.korean_char? '가'           # true
-ko.complete_korean_char? '가'  # true
+Gimchi.korean_char? '가'           # true
+Gimchi.complete_korean_char? '가'  # true
 
 # Alias of korean_char?
-ko.kchar? '가'                 # true
+Gimchi.kchar? '가'                 # true
 ```
 
 ### Gimchi::Korean::Char
 ```ruby
-kc = ko.kchar "한"
+kc = Gimchi::Char "한"
 kc.class                   # Gimchi::Korean::Char
 
 kc.chosung                 # "ㅎ"
@@ -53,7 +46,8 @@ kc.to_s                    # "한"
 
 kc.complete?               # true
 kc.partial?                # false
-ko.kchar("ㅏ").partial?    # true
+
+Gimchi::Char("ㅏ").partial?    # true
 
 # Modifying its elements
 kc.chosung = 'ㄷ'
@@ -66,49 +60,34 @@ kc.chosung = nil
 kc.jongsung = nil
 kc.complete?               # false
 kc.partial?                # true
-
-# Alias of kchar
-kc = ko.korean_char "한"
-
-# Array of Gimchi::Korean::Char's
-arr = ko.convert '이것은 한글입니다.'
-  # [이, 것, 은, " ", 한, 글, 입, 니, 다, "."]
-
-arr[0].class               # Gimchi::Korean::Char
-
-# Dissects given String
-arr = ko.dissect '이것은 한글입니다.'
-  # ["ㅇ", "ㅣ", "ㄱ", "ㅓ", "ㅅ", "ㅇ", "ㅡ", "ㄴ", " ", 
-  #  "H", "a", "n", "g", "u", "l", " ", "ㅇ", "ㅣ", "ㅂ",
-  #  "ㄴ", "ㅣ", "ㄷ", "ㅏ", "."]
 ```
 
 ### 숫자 읽기
 ```ruby
-ko.read_number(1999)         # "천 구백 구십 구"
-ko.read_number(- 100.123)    # "마이너스 백점일이삼"
-ko.read_number("153,191,100,678.3214")
+Gimchi.read_number(1999)         # "천 구백 구십 구"
+Gimchi.read_number(- 100.123)    # "마이너스 백점일이삼"
+Gimchi.read_number("153,191,100,678.3214")
     # "천 오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사"
 
 # 나이, 시간 ( -살, -시 )
-ko.read_number("20살")       # "스무살"
-ko.read_number("13 살")      # "열세 살"
-ko.read_number("7시 30분")   # "일곱시 삼십분"
+Gimchi.read_number("20살")       # "스무살"
+Gimchi.read_number("13 살")      # "열세 살"
+Gimchi.read_number("7시 30분")   # "일곱시 삼십분"
 ```
 
 ### 표준 발음 (부분 구현)
 ```ruby
 str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 분까지 우릴 조그만 교실로 몰아넣고"
-ko.pronounce str
+Gimchi.pronounce str
   # "돼써 돼써 이제 그런 가르치믄 돼써 매일 아침 일곱 시 삼십 분까지 우릴 조그만 교실로 모라너코"
 
-ko.pronounce str, :slur => true
+Gimchi.pronounce str, :slur => true
   # "돼써 돼써 이제 그런 가르치믄 돼써 매이 라치 밀곱 씨 삼십 뿐까지 우릴 조그만 교실로 모라너코"
 
-ko.pronounce str, :pronounce_each_char => true
+Gimchi.pronounce str, :each_char => true
   # "됃어 됃어 이제 그런 가르침은 됃어 매일 아침 일곱 시 삼십 분까지 우릴 조그만 교실로 몰아너고"
 
-ko.pronounce str, :number => false
+Gimchi.pronounce str, :number => false
   # "돼써 돼써 이제 그런 가르치믄 돼써 매일 아침 7 시 30 분까지 우릴 조그만 교실로 모라너코"
 ```
 
@@ -116,13 +95,13 @@ ko.pronounce str, :number => false
 ```ruby
 str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 분까지 우릴 조그만 교실로 몰아넣고"
 
-ko.romanize str
+Gimchi.romanize str
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo moraneoko"
-ko.romanize str, :slur => true
+Gimchi.romanize str, :slur => true
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-i rachi milgop ssi samsip ppunkkaji uril jogeuman gyosillo moraneoko"
-ko.romanize str, :as_pronounced => false
+Gimchi.romanize str, :as_pronounced => false
   # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
-ko.romanize str, :number => false
+Gimchi.romanize str, :number => false
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
 ```
 

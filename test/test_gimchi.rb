@@ -2,10 +2,13 @@
 
 $LOAD_PATH.unshift File.dirname(__FILE__)
 require 'helper'
+require 'yaml'
+require 'ansi'
+
 
 class TestGimchi < Test::Unit::TestCase
 	def test_korean_char
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 		assert_equal true, ko.korean_char?('ㄱ')  # true
 		assert_equal true, ko.kchar?('ㄱ')  # true
 		assert_equal true, ko.korean_char?('ㅏ')  # true
@@ -20,27 +23,24 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
   def test_kchar
-		ko = Gimchi::Korean.new
-    # Alias
-    [ko.kchar('한'), ko.korean_char('한')].each do |kc|
-      assert_equal Gimchi::Korean::Char, kc.class
-      assert_equal "ㅎ", kc.chosung
-      assert_equal "ㅏ", kc.jungsung
-      assert_equal "ㄴ", kc.jongsung
-      assert_equal ["ㅎ", "ㅏ", "ㄴ"], kc.to_a
-      assert_equal "한", kc.to_s
-      assert_equal true, kc.complete?
-      assert_equal false, kc.partial?
-    end
+    kc = Gimchi::Char('한')
+    assert_equal Gimchi::Char, kc.class
+    assert_equal "ㅎ", kc.chosung
+    assert_equal "ㅏ", kc.jungsung
+    assert_equal "ㄴ", kc.jongsung
+    assert_equal ["ㅎ", "ㅏ", "ㄴ"], kc.to_a
+    assert_equal "한", kc.to_s
+    assert_equal true, kc.complete?
+    assert_equal false, kc.partial?
 
-		assert_raise(ArgumentError) { ko.kchar('한글') }
-		assert_raise(ArgumentError) { ko.kchar('A') }
+		assert_raise(ArgumentError) { Gimchi::Char('한글') }
+		assert_raise(ArgumentError) { Gimchi::Char('A') }
 
-    assert_equal true, ko.kchar("ㅏ").partial?
+    assert_equal true, Gimchi::Char("ㅏ").partial?
   end
 
 	def test_complete_korean_char
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 
 		assert_equal false, ko.complete_korean_char?('ㄱ') # false
 		assert_equal false, ko.complete_korean_char?('ㅏ') # false
@@ -53,25 +53,28 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
   def test_dissect
-		ko = Gimchi::Korean.new
+		arr = '이것은 Hangul 입니다.'.each_char.map { |ch|
+      (Gimchi::Char(ch) rescue [ch]).to_a
+    }.flatten.compact
 
-		arr = ko.dissect '이것은 Hangul 입니다.'
-    assert_equal ["ㅇ", "ㅣ", "ㄱ", "ㅓ", "ㅅ", "ㅇ", "ㅡ", "ㄴ", " ", 
+    assert_equal ["ㅇ", "ㅣ", "ㄱ", "ㅓ", "ㅅ", "ㅇ", "ㅡ", "ㄴ", " ",
                   "H", "a", "n", "g", "u", "l", " ", "ㅇ", "ㅣ", "ㅂ",
                   "ㄴ", "ㅣ", "ㄷ", "ㅏ", "."], arr
   end
 
 	def test_convert
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 
-		arr = ko.convert '이것은 한글입니다.'
+		arr = '이것은 한글입니다.'.each_char.map { |ch|
+      Gimchi::Char(ch) rescue ch
+    }
 		# [이, 것, 은, " ", 한, 글, 입, 니, 다, "."]
 
 		assert_equal 10, arr.length
-		assert_equal Gimchi::Korean::Char, arr[0].class
-		assert_equal Gimchi::Korean::Char, arr[1].class
-		assert_equal Gimchi::Korean::Char, arr[2].class
-		
+		assert_equal Gimchi::Char, arr[0].class
+		assert_equal Gimchi::Char, arr[1].class
+		assert_equal Gimchi::Char, arr[2].class
+
 		ch = arr[2]
 		assert_equal 'ㅇ', ch.chosung
 		assert_equal 'ㅡ', ch.jungsung
@@ -108,7 +111,7 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
 	def test_read_number
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 		assert_equal "영", ko.read_number(0)
 		assert_equal "일", ko.read_number(1)
 		assert_equal "구", ko.read_number(9)
@@ -141,10 +144,7 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
 	def test_pronounce
-		require 'yaml'
-		require 'ansi'
-
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 		cnt = 0
 		s = 0
 		test_set = YAML.load File.read(File.dirname(__FILE__) + '/pronunciation.yml')
@@ -152,8 +152,8 @@ class TestGimchi < Test::Unit::TestCase
 			cnt += 1
 			k = k.gsub(/[-]/, '')
 
-			t1, tfs1 = ko.pronounce(k, :pronounce_each_char => false, :slur => true, :debug => true)
-			t2, tfs2 = ko.pronounce(k, :pronounce_each_char => false, :slur => false, :debug => true)
+			t1, tfs1 = ko.pronounce(k, :each_char => false, :slur => true, :debug => true)
+			t2, tfs2 = ko.pronounce(k, :each_char => false, :slur => false, :debug => true)
 
 			path = ""
 			if (with_slur = v.include?(t1.gsub(/\s/, ''))) || v.include?(t2.gsub(/\s/, ''))
@@ -173,12 +173,12 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
 	def test_romanize_preserve_non_korean
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 		assert_equal 'ttok-kkateun kkk', ko.romanize('똑같은 kkk')
 	end
 
 	def test_romanize
-		ko = Gimchi::Korean.new
+		ko = Gimchi
 
 		cnt = 0
 		s = 0

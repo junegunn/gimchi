@@ -7,8 +7,8 @@ Gem::Specification.new do |gem|
   gem.version       = "0.2.0"
   gem.authors       = ["Junegunn Choi"]
   gem.email         = ["junegunn.c@gmail.com"]
-  gem.description   = %q{Gimchi reads Korean}
-  gem.summary       = %q{Gimchi reads Korean}
+  gem.description   = %q{A Ruby gem for Korean characters}
+  gem.summary       = %q{A Ruby gem for Korean characters}
   gem.homepage      = "https://github.com/junegunn/gimchi"
 
   gem.files         = `git ls-files`.split($/).reject { |f| f =~ %r[^viz/] }

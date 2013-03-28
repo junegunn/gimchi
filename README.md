@@ -1,23 +1,33 @@
 # gimchi
 
-Gimchi is a simple Ruby gem which knows how to handle Korean strings. It knows
-how to dissect Korean characters into its 3 components, namely chosung,
-jungsung and optional jongsung. It knows how Korean sentences are pronounced
-and how they're written in roman alphabet.
+Gimchi is a simple Ruby gem for handling Korean characters.
 
-Gimchi (only partially) implements the following rules dictated by
+Features:
+- Decompose a Korean character into its 3 components, namely chosung, jungsung and optional jongsung.
+- Compose elements back into the Korean character
+- Read numbers in Korean
+- Pronounce Korean character string
+- Romanize Korean character string
+
+Gimchi (partially) implements the following rules dictated by
 The National Institute of The Korean Language (http://www.korean.go.kr)
-* Korean Standard Pronunciation
-* Korean Romanization
+- Korean Standard Pronunciation
+- Korean Romanization
 
 ## Installation
 ```
 gem install gimchi
 ```
 
-## Usage
+## Composing and decomposing Korean character
 
-### Checks if the given character is in Korean alphabet
+```ruby
+chosung, jungsung, jongsung = Gimchi.decompose "한"
+
+Gimchi.compose chosung, jungsung, jongsung    # 한
+```
+
+### Korean character
 ```ruby
 Gimchi.korean_char? 'ㄱ'           # true
 Gimchi.complete_korean_char? 'ㄱ'  # false

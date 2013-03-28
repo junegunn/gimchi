@@ -18,6 +18,15 @@ gem install gimchi
 
 ## 사용법
 
+### 초/중/종성 분해/합체
+
+```ruby
+chosung, jungsung, jongsung = Gimchi.decompose "한"
+
+Gimchi.compose chosung, jungsung, jongsung    # 한
+Gimchi.compose chosung, "ㅗ", jongsung        # 혼
+```
+
 ### 한글 캐릭터 여부 판단
 ```ruby
 Gimchi.korean_char? 'ㄱ'           # true
@@ -31,35 +40,48 @@ Gimchi.complete_korean_char? '가'  # true
 
 # Alias of korean_char?
 Gimchi.kchar? '가'                 # true
+
+Gimchi.chosung?  'ㄱ'              # true
+Gimchi.jungsung? 'ㄱ'              # false
+Gimchi.jongsung? 'ㄱ'              # true
+
+Gimchi.chosung?  'ㅏ'              # false
+Gimchi.jungsung? 'ㅏ'              # true
+Gimchi.jongsung? 'ㅏ'              # false
+
+Gimchi.chosung?  'ㄺ'              # false
+Gimchi.jungsung? 'ㄺ'              # false
+Gimchi.jongsung? 'ㄺ'              # true
 ```
 
-### Gimchi::Korean::Char
+### Gimchi::Char 의 사용
+
 ```ruby
 kc = Gimchi::Char "한"
-kc.class                   # Gimchi::Korean::Char
+kc.class                    # Gimchi::Char
 
-kc.chosung                 # "ㅎ"
-kc.jungsung                # "ㅏ"
-kc.jongsung                # "ㄴ"
-kc.to_a                    # ["ㅎ", "ㅏ", "ㄴ"]
-kc.to_s                    # "한"
+kc.chosung                  # "ㅎ"
+kc.jungsung                 # "ㅏ"
+kc.jongsung                 # "ㄴ"
+kc.to_a                     # ["ㅎ", "ㅏ", "ㄴ"]
+kc.to_s                     # "한"
 
-kc.complete?               # true
-kc.partial?                # false
+kc.complete?                # true
+kc.partial?                 # false
 
-Gimchi::Char("ㅏ").partial?    # true
+Gimchi::Char("ㅏ").partial? # true
 
 # Modifying its elements
 kc.chosung = 'ㄷ'
 kc.jongsung = 'ㄹ'
-kc.to_s                    # "달"
-kc.complete?               # true
-kc.partial?                # false
+kc.to_s                     # "달"
+kc.complete?                # true
+kc.partial?                 # false
 
 kc.chosung = nil
 kc.jongsung = nil
-kc.complete?               # false
-kc.partial?                # true
+kc.complete?                # false
+kc.partial?                 # true
 ```
 
 ### 숫자 읽기
@@ -119,7 +141,7 @@ Gimchi.romanize str, :as_pronounced => false
 노력이 필요합니다.
 
 ## Contributing to gimchi
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
@@ -130,6 +152,6 @@ Gimchi.romanize str, :as_pronounced => false
 
 ## Copyright
 
-Copyright (c) 2011 Junegunn Choi. See LICENSE.txt for
+Copyright (c) 2013 Junegunn Choi. See LICENSE.txt for
 further details.
 

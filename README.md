@@ -6,8 +6,8 @@ Features:
 - Decompose a Korean character into its 3 components, namely chosung, jungsung and optional jongsung.
 - Compose elements back into the Korean character
 - Read numbers in Korean
-- Pronounce Korean character string
-- Romanize Korean character string
+- Pronounce Korean characters
+- Romanize Korean characters
 
 Gimchi (partially) implements the following rules dictated by
 The National Institute of The Korean Language (http://www.korean.go.kr)
@@ -15,6 +15,7 @@ The National Institute of The Korean Language (http://www.korean.go.kr)
 - Korean Romanization
 
 ## Installation
+
 ```
 gem install gimchi
 ```
@@ -25,9 +26,10 @@ gem install gimchi
 chosung, jungsung, jongsung = Gimchi.decompose "한"
 
 Gimchi.compose chosung, jungsung, jongsung    # 한
+Gimchi.compose chosung, "ㅗ", jongsung        # 혼
 ```
 
-### Korean character
+### Inspecting Korean characters
 ```ruby
 Gimchi.korean_char? 'ㄱ'           # true
 Gimchi.complete_korean_char? 'ㄱ'  # false
@@ -40,35 +42,48 @@ Gimchi.complete_korean_char? '가'  # true
 
 # Alias of korean_char?
 Gimchi.kchar? '가'                 # true
+
+Gimchi.chosung?  'ㄱ'              # true
+Gimchi.jungsung? 'ㄱ'              # false
+Gimchi.jongsung? 'ㄱ'              # true
+
+Gimchi.chosung?  'ㅏ'              # false
+Gimchi.jungsung? 'ㅏ'              # true
+Gimchi.jongsung? 'ㅏ'              # false
+
+Gimchi.chosung?  'ㄺ'              # false
+Gimchi.jungsung? 'ㄺ'              # false
+Gimchi.jongsung? 'ㄺ'              # true
 ```
 
-### Usage of Gimchi::Korean::Char
+### Using Gimchi::Char instance
+
 ```ruby
 kc = Gimchi::Char "한"
-kc.class                   # Gimchi::Char
+kc.class                    # Gimchi::Char
 
-kc.chosung                 # "ㅎ"
-kc.jungsung                # "ㅏ"
-kc.jongsung                # "ㄴ"
-kc.to_a                    # ["ㅎ", "ㅏ", "ㄴ"]
-kc.to_s                    # "한"
+kc.chosung                  # "ㅎ"
+kc.jungsung                 # "ㅏ"
+kc.jongsung                 # "ㄴ"
+kc.to_a                     # ["ㅎ", "ㅏ", "ㄴ"]
+kc.to_s                     # "한"
 
-kc.complete?               # true
-kc.partial?                # false
+kc.complete?                # true
+kc.partial?                 # false
 
-Gimchi::Char("ㅏ").partial?    # true
+Gimchi::Char("ㅏ").partial? # true
 
 # Modifying its elements
 kc.chosung = 'ㄷ'
 kc.jongsung = 'ㄹ'
-kc.to_s                    # "달"
-kc.complete?               # true
-kc.partial?                # false
+kc.to_s                     # "달"
+kc.complete?                # true
+kc.partial?                 # false
 
 kc.chosung = nil
 kc.jongsung = nil
-kc.complete?               # false
-kc.partial?                # true
+kc.complete?                # false
+kc.partial?                 # true
 ```
 
 ### Reading numbers in Korean
@@ -131,7 +146,7 @@ that try to improve the quality of the output, which should better be
 refactored anytime soon.
 
 ## Contributing to gimchi
- 
+
 * Check out the latest master to make sure the feature hasn't been implemented or the bug hasn't been fixed yet
 * Check out the issue tracker to make sure someone already hasn't requested it and/or contributed it
 * Fork the project
@@ -142,6 +157,6 @@ refactored anytime soon.
 
 ## Copyright
 
-Copyright (c) 2011 Junegunn Choi. See LICENSE.txt for
+Copyright (c) 2013 Junegunn Choi. See LICENSE.txt for
 further details.
 

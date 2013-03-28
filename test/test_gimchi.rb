@@ -138,7 +138,7 @@ class TestGimchi < Test::Unit::TestCase
 		assert_equal "지금은 일곱시 삼십분", Gimchi.read_number("지금은 7시 30분")
 
     # No way!
-    assert_raise(ArgumentError) { Gimchi.read_number 10 ** 100 }
+    assert_raise(RangeError) { Gimchi.read_number 10 ** 100 }
 	end
 
 	def test_pronounce
@@ -198,6 +198,16 @@ class TestGimchi < Test::Unit::TestCase
     assert Gimchi.chosung?(c)
     assert Gimchi.jungsung?(j)
     assert Gimchi.jongsung?(jo)
+
+    assert  Gimchi.chosung?( 'ㄱ')
+    assert !Gimchi.jungsung?('ㄱ')
+    assert  Gimchi.jongsung?('ㄱ')
+    assert !Gimchi.chosung?( 'ㅏ')
+    assert  Gimchi.jungsung?('ㅏ')
+    assert !Gimchi.jongsung?('ㅏ')
+    assert !Gimchi.chosung?( 'ㄺ')
+    assert !Gimchi.jungsung?('ㄺ')
+    assert  Gimchi.jongsung?('ㄺ')
   end
 
   def test_compose_decompose

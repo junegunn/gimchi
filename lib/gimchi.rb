@@ -4,7 +4,6 @@
 
 require 'yaml'
 require 'set'
-require 'gimchi/patch_1.8'
 require 'gimchi/char'
 require 'gimchi/pronouncer'
 
@@ -39,7 +38,6 @@ class Gimchi
   # Initialize Gimchi::Korean.
   def initialize
     symbolize_keys = lambda do |val|
-      h = {}
       case val
       when Hash
         {}.tap do |h|
@@ -126,8 +124,6 @@ class Gimchi
   # @param [String, Number] str Numeric type or String containing numeric expressions
   # @return [String] Output string
   def read_number str
-    nconfig = config[:number]
-
     str.to_s.gsub(/(([+-]\s*)?[0-9,]*,*[0-9]+(\.[0-9]+(e[+-][0-9]+)?)?)(\s*.)?/) {
       read_number_sub($1, $5)
     }
@@ -321,7 +317,7 @@ private
 
           # Likewise.
           [[1000, '천'],
-           [100,  '백']].each do | u, sub_unit |
+           [100,  '백']].each do |u, sub_unit|
             str += (nconfig[:digits][v/u] if v/u != 1).to_s + sub_unit + ' ' if v / u > 0
             v %= u
           end
@@ -330,8 +326,8 @@ private
           v %= 10
           str += digits[v] if v > 0
 
-          alt_post_subs.each do | k, v |
-            str.gsub!(k, v)
+          alt_post_subs.each do |p, s|
+            str.gsub!(p, s)
           end if alt
           tokens << str.sub(/ $/, '') + nconfig[:units][unit_idx]
         end
@@ -341,11 +337,13 @@ private
 
     tokens += sign unless sign.empty?
     ret = tokens.reverse.join(' ') + below + next_char
-    nconfig[:post_substitution].each do | k, v |
-      ret.gsub!(k, v)
+    nconfig[:post_substitution].each do |p, s|
+      ret.gsub!(p, s)
     end
     ret
   end
 end#Gimchi
+
+require 'gimchi/patch_1.8'
 
 Gimchi.setup

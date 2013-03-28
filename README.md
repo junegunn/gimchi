@@ -83,11 +83,11 @@ Gimchi.pronounce str
 Gimchi.pronounce str, :slur => true
   # "돼써 돼써 이제 그런 가르치믄 돼써 매이 라치 밀곱 씨 삼십 뿐까지 우릴 조그만 교실로 모라너코"
 
-Gimchi.pronounce str, :each_char => true
-  # "됃어 됃어 이제 그런 가르침은 됃어 매일 아침 일곱 시 삼십 분까지 우릴 조그만 교실로 몰아너고"
-
 Gimchi.pronounce str, :number => false
   # "돼써 돼써 이제 그런 가르치믄 돼써 매일 아침 7 시 30 분까지 우릴 조그만 교실로 모라너코"
+
+Gimchi.pronounce str, :each_char => true
+  # "됃어 됃어 이제 그런 가르침은 됃어 매일 아침 일곱 시 삼십 분까지 우릴 조그만 교실로 몰아너고"
 ```
 
 ### Romanization (partially implemented)
@@ -96,12 +96,15 @@ str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 �
 
 Gimchi.romanize str
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo moraneoko"
+
 Gimchi.romanize str, :slur => true
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-i rachi milgop ssi samsip ppunkkaji uril jogeuman gyosillo moraneoko"
-Gimchi.romanize str, :as_pronounced => false
-  # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
+
 Gimchi.romanize str, :number => false
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
+
+Gimchi.romanize str, :as_pronounced => false
+  # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
 ```
 
 ## Limitation of the implementation

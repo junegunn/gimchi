@@ -97,12 +97,15 @@ str = "됐어 됐어 이제 그런 가르침은 됐어 매일 아침 7 시 30 �
 
 Gimchi.romanize str
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo moraneoko"
+
 Gimchi.romanize str, :slur => true
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-i rachi milgop ssi samsip ppunkkaji uril jogeuman gyosillo moraneoko"
-Gimchi.romanize str, :as_pronounced => false
-  # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
+
 Gimchi.romanize str, :number => false
   # "Dwaesseo dwaesseo ije geureon gareuchimeun dwaesseo mae-il achim 7 si 30 bunkkaji uril jogeuman gyosillo moraneoko"
+
+Gimchi.romanize str, :as_pronounced => false
+  # "Dwaet-eo dwaet-eo ije geureon gareuchim-eun dwaet-eo mae-il achim ilgop si samsip bunkkaji uril jogeuman gyosillo mol-aneogo"
 ```
 
 ## 구현의 한계

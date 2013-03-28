@@ -1,174 +1,174 @@
 ---
 structure:
-    chosung:  [ㄱ, ㄲ, ㄴ, ㄷ, ㄸ, ㄹ, ㅁ, ㅂ, ㅃ, ㅅ, ㅆ, ㅇ, ㅈ, ㅉ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ]
-    jungsung: [ㅏ, ㅐ, ㅑ, ㅒ, ㅓ, ㅔ, ㅕ, ㅖ, ㅗ, ㅘ, ㅙ, ㅚ, ㅛ, ㅜ, ㅝ, ㅞ, ㅟ, ㅠ, ㅡ, ㅢ, ㅣ]
-    jongsung: [ㄱ, ㄲ, ㄳ, ㄴ, ㄵ, ㄶ, ㄷ, ㄹ, ㄺ, ㄻ, ㄼ, ㄽ, ㄾ, ㄿ, ㅀ, ㅁ, ㅂ, ㅄ, ㅅ, 
-                ㅆ, ㅇ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ]
+  chosung:  [ㄱ, ㄲ, ㄴ, ㄷ, ㄸ, ㄹ, ㅁ, ㅂ, ㅃ, ㅅ, ㅆ, ㅇ, ㅈ, ㅉ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ]
+  jungsung: [ㅏ, ㅐ, ㅑ, ㅒ, ㅓ, ㅔ, ㅕ, ㅖ, ㅗ, ㅘ, ㅙ, ㅚ, ㅛ, ㅜ, ㅝ, ㅞ, ㅟ, ㅠ, ㅡ, ㅢ, ㅣ]
+  jongsung: [ㄱ, ㄲ, ㄳ, ㄴ, ㄵ, ㄶ, ㄷ, ㄹ, ㄺ, ㄻ, ㄼ, ㄽ, ㄾ, ㄿ, ㅀ, ㅁ, ㅂ, ㅄ, ㅅ,
+        ㅆ, ㅇ, ㅈ, ㅊ, ㅋ, ㅌ, ㅍ, ㅎ]
 
-    fortis map:
-        ㄱ: ㄲ
-        ㄷ: ㄸ
-        ㅂ: ㅃ
-        ㅅ: ㅆ
-        ㅈ: ㅉ
+  fortis map:
+    ㄱ: ㄲ
+    ㄷ: ㄸ
+    ㅂ: ㅃ
+    ㅅ: ㅆ
+    ㅈ: ㅉ
 
-    double consonant map:
-        ㄳ: [ㄱ, ㅅ]
-        ㄵ: [ㄴ, ㅈ]
-        ㄶ: [ㄴ, ㅎ]
-        ㄺ: [ㄹ, ㄱ]
-        ㄻ: [ㄹ, ㅁ]
-        ㄼ: [ㄹ, ㅂ]
-        ㄽ: [ㄹ, ㅅ]
-        ㄾ: [ㄹ, ㅌ]
-        ㄿ: [ㄹ, ㅍ]
-        ㅀ: [ㄹ, ㅎ]
-        ㅄ: [ㅂ, ㅅ]
+  double consonant map:
+    ㄳ: [ㄱ, ㅅ]
+    ㄵ: [ㄴ, ㅈ]
+    ㄶ: [ㄴ, ㅎ]
+    ㄺ: [ㄹ, ㄱ]
+    ㄻ: [ㄹ, ㅁ]
+    ㄼ: [ㄹ, ㅂ]
+    ㄽ: [ㄹ, ㅅ]
+    ㄾ: [ㄹ, ㅌ]
+    ㄿ: [ㄹ, ㅍ]
+    ㅀ: [ㄹ, ㅎ]
+    ㅄ: [ㅂ, ㅅ]
 
 pronouncer:
-    jongsung sound:
-        ㄱ: ㄱ
-        ㄲ: ㄱ
-        ㄳ: ㄱ
-        ㄴ: ㄴ
-        ㄵ: ㄴ
-        ㄶ: ㄴ
-        ㄷ: ㄷ
-        ㄹ: ㄹ
-        ㄺ: ㄱ
-        ㄻ: ㅁ
-        ㄼ: ㄹ
-        ㄽ: ㄹ
-        ㄾ: ㅌ
-        ㄿ: ㅂ
-        ㅀ: ㄹ
-        ㅁ: ㅁ
-        ㅂ: ㅂ
-        ㅄ: ㅂ
-        ㅅ: ㄷ
-        ㅆ: ㄷ
-        ㅇ: ㅇ
-        ㅈ: ㄷ
-        ㅊ: ㄷ
-        ㅋ: ㄱ
-        ㅌ: ㄷ
-        ㅍ: ㅂ
-        ㅎ:
-    transformation:
-        # changing the order affects the quality of the transformation
-        sequence for 1:
-            - rule_5_1
-            - rule_5_3
+  jongsung sound:
+    ㄱ: ㄱ
+    ㄲ: ㄱ
+    ㄳ: ㄱ
+    ㄴ: ㄴ
+    ㄵ: ㄴ
+    ㄶ: ㄴ
+    ㄷ: ㄷ
+    ㄹ: ㄹ
+    ㄺ: ㄱ
+    ㄻ: ㅁ
+    ㄼ: ㄹ
+    ㄽ: ㄹ
+    ㄾ: ㅌ
+    ㄿ: ㅂ
+    ㅀ: ㄹ
+    ㅁ: ㅁ
+    ㅂ: ㅂ
+    ㅄ: ㅂ
+    ㅅ: ㄷ
+    ㅆ: ㄷ
+    ㅇ: ㅇ
+    ㅈ: ㄷ
+    ㅊ: ㄷ
+    ㅋ: ㄱ
+    ㅌ: ㄷ
+    ㅍ: ㅂ
+    ㅎ:
+  transformation:
+    # changing the order affects the quality of the transformation
+    sequence for 1:
+      - rule_5_1
+      - rule_5_3
 
-        sequence for 2:
-            - rule_16
-            - rule_17
-            - rule_18
-            - rule_19
-            - rule_5_1
-            - rule_5_3
-            - rule_30
-            - rule_23
-            - rule_24
-            - rule_25
-            - rule_12
-            - rule_20
-            - rule_10
-            - rule_27
-            - rule_9
-            - rule_11
-            - rule_14
-            - rule_13
-            - rule_15
-        blocking rule:
-            rule_16: [rule_30]
+    sequence for 2:
+      - rule_16
+      - rule_17
+      - rule_18
+      - rule_19
+      - rule_5_1
+      - rule_5_3
+      - rule_30
+      - rule_23
+      - rule_24
+      - rule_25
+      - rule_12
+      - rule_20
+      - rule_10
+      - rule_27
+      - rule_9
+      - rule_11
+      - rule_14
+      - rule_13
+      - rule_15
+    blocking rule:
+      rule_16: [rule_30]
 
 number:
-    positive: 플러스
-    negative: 마이너스
-    decimal point: 점
-    units: ["", 만, 억, 조, 경, 해, 자, 양, 구, 간, 정, 재, 극, 항하사, 아승기, 나유타, 불가사의, 무량대수]
-    digits: [영, 일, 이, 삼, 사, 오, 육, 칠, 팔, 구]
-    post substitution:
-        "^일만": 만
+  positive: 플러스
+  negative: 마이너스
+  decimal point: 점
+  units: ["", 만, 억, 조, 경, 해, 자, 양, 구, 간, 정, 재, 극, 항하사, 아승기, 나유타, 불가사의, 무량대수]
+  digits: [영, 일, 이, 삼, 사, 오, 육, 칠, 팔, 구]
+  post substitution:
+    "^일만": 만
 
-    # 정수형일 때 또다른 표현법 (나이, 시간)
-    alt notation:
-        when suffix:
-            개:
-                max: 
-            명:
-                max: 
-            살:
-                max: 
-            시:
-                max: 12
-        tenfolds: [열, 스물, 서른, 마흔, 쉰, 예순, 일흔, 여든, 아흔, 백]
-        digits: ["", 한, 두, 세, 네, 다섯, 여섯, 일곱, 여덟, 아홉]
-        post substitution:
-            "스물$": 스무
+  # 정수형일 때 또다른 표현법 (나이, 시간)
+  alt notation:
+    when suffix:
+      개:
+        max:
+      명:
+        max:
+      살:
+        max:
+      시:
+        max: 12
+    tenfolds: [열, 스물, 서른, 마흔, 쉰, 예순, 일흔, 여든, 아흔, 백]
+    digits: ["", 한, 두, 세, 네, 다섯, 여섯, 일곱, 여덟, 아홉]
+    post substitution:
+      "스물$": 스무
 
 romanization:
-    chosung:
-        ㄱ: g
-        ㄲ: kk
-        ㅋ: k
-        ㄷ: d
-        ㄸ: tt
-        ㅌ: t
-        ㅂ: b
-        ㅃ: pp
-        ㅍ: p
-        ㅈ: j
-        ㅉ: jj
-        ㅊ: ch
-        ㅅ: s
-        ㅆ: ss
-        ㅎ: h
-        ㄴ: n
-        ㅁ: m
-        ㄹ: r
-        ㅇ: "-"
-    jungsung:
-        ㅏ: a
-        ㅓ: eo
-        ㅗ: o
-        ㅜ: u
-        ㅡ: eu
-        ㅣ: i
-        ㅐ: ae
-        ㅔ: e
-        ㅚ: oe
-        ㅟ: wi
-        ㅑ: ya
-        ㅕ: yeo
-        ㅛ: yo
-        ㅠ: yu
-        ㅒ: yae
-        ㅖ: ye
-        ㅘ: wa
-        ㅙ: wae
-        ㅝ: wo
-        ㅞ: we
-        ㅢ: ui
-    jongsung:
-        ㄱ: k
-        ㄴ: n-
-        ㄷ: t
-        ㄹ: l
-        ㅁ: m
-        ㅂ: p
-        ㅇ: ng
-    post substitution:
-        # 제2항 [붙임 2]‘ㄹ’은 모음 앞에서는 ‘ｒ’로, 자음 앞이나 어말에서는
-        # ‘ｌ’로 적는다. 단, ‘ㄹㄹ’은 ‘ll’로 적는다.
-        lr: ll
-        "-w": w
-        "-y": y
-        kkk: k-kk
-        ttt: t-tt
-        ppp: p-pp
-        "--": "-"
-        "n-([^gaeiou])": "n\\1"
-        "-(\\s)": "\\1"
-        "-$": ""
+  chosung:
+    ㄱ: g
+    ㄲ: kk
+    ㅋ: k
+    ㄷ: d
+    ㄸ: tt
+    ㅌ: t
+    ㅂ: b
+    ㅃ: pp
+    ㅍ: p
+    ㅈ: j
+    ㅉ: jj
+    ㅊ: ch
+    ㅅ: s
+    ㅆ: ss
+    ㅎ: h
+    ㄴ: n
+    ㅁ: m
+    ㄹ: r
+    ㅇ: "-"
+  jungsung:
+    ㅏ: a
+    ㅓ: eo
+    ㅗ: o
+    ㅜ: u
+    ㅡ: eu
+    ㅣ: i
+    ㅐ: ae
+    ㅔ: e
+    ㅚ: oe
+    ㅟ: wi
+    ㅑ: ya
+    ㅕ: yeo
+    ㅛ: yo
+    ㅠ: yu
+    ㅒ: yae
+    ㅖ: ye
+    ㅘ: wa
+    ㅙ: wae
+    ㅝ: wo
+    ㅞ: we
+    ㅢ: ui
+  jongsung:
+    ㄱ: k
+    ㄴ: n-
+    ㄷ: t
+    ㄹ: l
+    ㅁ: m
+    ㅂ: p
+    ㅇ: ng
+  post substitution:
+    # 제2항 [붙임 2]‘ㄹ’은 모음 앞에서는 ‘ｒ’로, 자음 앞이나 어말에서는
+    # ‘ｌ’로 적는다. 단, ‘ㄹㄹ’은 ‘ll’로 적는다.
+    lr: ll
+    "-w": w
+    "-y": y
+    kkk: k-kk
+    ttt: t-tt
+    ppp: p-pp
+    "--": "-"
+    "n-([^gaeiou])": "n\\1"
+    "-(\\s)": "\\1"
+    "-$": ""

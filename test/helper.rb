@@ -1,3 +1,4 @@
+$VERBOSE = true
 require 'rubygems'
 require 'bundler'
 begin

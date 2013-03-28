@@ -8,18 +8,17 @@ require 'ansi'
 
 class TestGimchi < Test::Unit::TestCase
 	def test_korean_char
-		ko = Gimchi
-		assert_equal true, ko.korean_char?('ㄱ')  # true
-		assert_equal true, ko.kchar?('ㄱ')  # true
-		assert_equal true, ko.korean_char?('ㅏ')  # true
-		assert_equal true, ko.korean_char?('가')  # true
-		assert_equal true, ko.korean_char?('값')  # true
-		assert_equal true, ko.kchar?('값')  # true
+		assert_equal true, Gimchi.korean_char?('ㄱ')  # true
+		assert_equal true, Gimchi.kchar?('ㄱ')  # true
+		assert_equal true, Gimchi.korean_char?('ㅏ')  # true
+		assert_equal true, Gimchi.korean_char?('가')  # true
+		assert_equal true, Gimchi.korean_char?('값')  # true
+		assert_equal true, Gimchi.kchar?('값')  # true
 
-		assert_equal false, ko.korean_char?('a')   # false
-		assert_equal false, ko.korean_char?('1')   # false
-		assert_raise(ArgumentError) { ko.korean_char?('두자') }
-		assert_raise(ArgumentError) { ko.kchar?('두자') }
+		assert_equal false, Gimchi.korean_char?('a')   # false
+		assert_equal false, Gimchi.korean_char?('1')   # false
+		assert_raise(ArgumentError) { Gimchi.korean_char?('두자') }
+		assert_raise(ArgumentError) { Gimchi.kchar?('두자') }
 	end
 
   def test_kchar
@@ -40,16 +39,15 @@ class TestGimchi < Test::Unit::TestCase
   end
 
 	def test_complete_korean_char
-		ko = Gimchi
 
-		assert_equal false, ko.complete_korean_char?('ㄱ') # false
-		assert_equal false, ko.complete_korean_char?('ㅏ') # false
-		assert_equal true, ko.complete_korean_char?('가') # true
-		assert_equal true, ko.complete_korean_char?('값') # true
+		assert_equal false, Gimchi.complete_korean_char?('ㄱ') # false
+		assert_equal false, Gimchi.complete_korean_char?('ㅏ') # false
+		assert_equal true, Gimchi.complete_korean_char?('가') # true
+		assert_equal true, Gimchi.complete_korean_char?('값') # true
 
-		assert_equal false, ko.korean_char?('a')   # false
-		assert_equal false, ko.korean_char?('1')   # false
-		assert_raise(ArgumentError) { ko.korean_char?('두자') }
+		assert_equal false, Gimchi.korean_char?('a')   # false
+		assert_equal false, Gimchi.korean_char?('1')   # false
+		assert_raise(ArgumentError) { Gimchi.korean_char?('두자') }
 	end
 
   def test_dissect
@@ -63,8 +61,6 @@ class TestGimchi < Test::Unit::TestCase
   end
 
 	def test_convert
-		ko = Gimchi
-
 		arr = '이것은 한글입니다.'.each_char.map { |ch|
       Gimchi::Char(ch) rescue ch
     }
@@ -111,40 +107,38 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
 	def test_read_number
-		ko = Gimchi
-		assert_equal "영", ko.read_number(0)
-		assert_equal "일", ko.read_number(1)
-		assert_equal "구", ko.read_number(9)
-		assert_equal "천 구백 구십 구", ko.read_number(1999)
-		assert_equal "마이너스 백점일이삼", ko.read_number(- 100.123)
+		assert_equal "영", Gimchi.read_number(0)
+		assert_equal "일", Gimchi.read_number(1)
+		assert_equal "구", Gimchi.read_number(9)
+		assert_equal "천 구백 구십 구", Gimchi.read_number(1999)
+		assert_equal "마이너스 백점일이삼", Gimchi.read_number(- 100.123)
 		assert_equal "오백 삼십 일억 구천 백 십만 육백 칠십 팔점삼이일사오육칠",
-				ko.read_number("53,191,100,678.3214567")
-		assert_equal "영점영영영영영일이삼사오", ko.read_number("1.2345e-06")
-		assert_equal "일해 이천 삼백 사십 오경", ko.read_number("1.2345e+20")
-		assert_equal "플러스 일해 이천 삼백 사십 오경", ko.read_number("+ 1.2345e+20")
-		assert_equal "마이너스 일해 이천 삼백 사십 오경", ko.read_number("- 1.2345e+20")
-		assert_equal "만 십 이점삼", ko.read_number("100.123e+2")
-		assert_equal "십만 십 이점삼", ko.read_number("1000.123e+2")
-		assert_equal "백 일만 십 이점삼", ko.read_number("10100.123e+2")
-		assert_equal "천 십 이점삼", ko.read_number("10.123e+2")
-		assert_equal "십점영", ko.read_number("10.0")
-		assert_equal "플러스 십점영", ko.read_number("+ 10.0")
+				Gimchi.read_number("53,191,100,678.3214567")
+		assert_equal "영점영영영영영일이삼사오", Gimchi.read_number("1.2345e-06")
+		assert_equal "일해 이천 삼백 사십 오경", Gimchi.read_number("1.2345e+20")
+		assert_equal "플러스 일해 이천 삼백 사십 오경", Gimchi.read_number("+ 1.2345e+20")
+		assert_equal "마이너스 일해 이천 삼백 사십 오경", Gimchi.read_number("- 1.2345e+20")
+		assert_equal "만 십 이점삼", Gimchi.read_number("100.123e+2")
+		assert_equal "십만 십 이점삼", Gimchi.read_number("1000.123e+2")
+		assert_equal "백 일만 십 이점삼", Gimchi.read_number("10100.123e+2")
+		assert_equal "천 십 이점삼", Gimchi.read_number("10.123e+2")
+		assert_equal "십점영", Gimchi.read_number("10.0")
+		assert_equal "플러스 십점영", Gimchi.read_number("+ 10.0")
 
 		# 나이, 시간, 개수, 명 ( -살, -시, -개, -명 )
-		assert_equal "나는 이십", ko.read_number("나는 20")
-		assert_equal "나는 스무살", ko.read_number("나는 20살")
-		assert_equal "나는 스물네살", ko.read_number("나는 24살")
-		assert_equal "스무개", ko.read_number("20개")
-		assert_equal "스무 명", ko.read_number("20 명")
-		assert_equal "이십 칠점일살", ko.read_number("27.1살")
-		assert_equal "너는 열세 살", ko.read_number("너는 13 살")
-		assert_equal "백 서른두명", ko.read_number("132명")
-		assert_equal "이천 오백 아흔아홉개", ko.read_number("2,599개")
-		assert_equal "지금은 일곱시 삼십분", ko.read_number("지금은 7시 30분")
+		assert_equal "나는 이십", Gimchi.read_number("나는 20")
+		assert_equal "나는 스무살", Gimchi.read_number("나는 20살")
+		assert_equal "나는 스물네살", Gimchi.read_number("나는 24살")
+		assert_equal "스무개", Gimchi.read_number("20개")
+		assert_equal "스무 명", Gimchi.read_number("20 명")
+		assert_equal "이십 칠점일살", Gimchi.read_number("27.1살")
+		assert_equal "너는 열세 살", Gimchi.read_number("너는 13 살")
+		assert_equal "백 서른두명", Gimchi.read_number("132명")
+		assert_equal "이천 오백 아흔아홉개", Gimchi.read_number("2,599개")
+		assert_equal "지금은 일곱시 삼십분", Gimchi.read_number("지금은 7시 30분")
 	end
 
 	def test_pronounce
-		ko = Gimchi
 		cnt = 0
 		s = 0
 		test_set = YAML.load File.read(File.dirname(__FILE__) + '/pronunciation.yml')
@@ -152,8 +146,8 @@ class TestGimchi < Test::Unit::TestCase
 			cnt += 1
 			k = k.gsub(/[-]/, '')
 
-			t1, tfs1 = ko.pronounce(k, :each_char => false, :slur => true, :debug => true)
-			t2, tfs2 = ko.pronounce(k, :each_char => false, :slur => false, :debug => true)
+			t1, tfs1 = Gimchi.pronounce(k, :each_char => false, :slur => true, :debug => true)
+			t2, tfs2 = Gimchi.pronounce(k, :each_char => false, :slur => false, :debug => true)
 
 			path = ""
 			if (with_slur = v.include?(t1.gsub(/\s/, ''))) || v.include?(t2.gsub(/\s/, ''))
@@ -165,7 +159,7 @@ class TestGimchi < Test::Unit::TestCase
 				r = ANSI::Code::RED + ANSI::Code::BOLD + v.join(' / ') + ANSI::Code::RESET
 				t = [t1, t2].join ' | '
 			end
-			puts "#{k} => #{t} (#{ko.romanize t, :as_pronounced => false}) [#{path}] #{r}"
+			puts "#{k} => #{t} (#{Gimchi.romanize t, :as_pronounced => false}) [#{path}] #{r}"
 		end
 		puts "#{s} / #{cnt}"
 		# FIXME
@@ -173,19 +167,16 @@ class TestGimchi < Test::Unit::TestCase
 	end
 
 	def test_romanize_preserve_non_korean
-		ko = Gimchi
-		assert_equal 'ttok-kkateun kkk', ko.romanize('똑같은 kkk')
+		assert_equal 'ttok-kkateun kkk', Gimchi.romanize('똑같은 kkk')
 	end
 
 	def test_romanize
-		ko = Gimchi
-
 		cnt = 0
 		s = 0
 		test_set = YAML.load File.read(File.dirname(__FILE__) + '/romanization.yml')
 		test_set.each do | k, v |
 			cnt += 1
-			rom = ko.romanize k.sub(/\[.*/, '')
+			rom = Gimchi.romanize k.sub(/\[.*/, '')
 			if rom.downcase.gsub(/[\s-]/, '') == v.downcase.gsub(/\(.*\)/, '').gsub(/[\s-]/, '')
 				r = ANSI::Code::BLUE + ANSI::Code::BOLD + rom + ANSI::Code::RESET
 				s += 1

@@ -226,4 +226,8 @@ class TestGimchi < Test::Unit::TestCase
 
     assert_equal 'ㅋ', Gimchi.compose(*ret)
   end
+
+  def test_singleton
+    assert_raise(NoMethodError) { Gimchi.new }
+  end
 end

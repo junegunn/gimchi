@@ -1,4 +1,4 @@
-# gimchi
+# Gimchi [![Build Status](https://travis-ci.org/junegunn/gimchi.png?branch=master)](https://travis-ci.org/junegunn/gimchi)
 
 ## 개요
 

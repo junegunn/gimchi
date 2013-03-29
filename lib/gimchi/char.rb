@@ -13,13 +13,11 @@ class Gimchi
     # @return [String] Jongsung component of this character.
     attr_reader :jongsung
 
-    # @param [Gimchi] gimchi Gimchi instance
     # @param [String] kchar Korean character string
-    def initialize gimchi, kchar
-      raise ArgumentError.new('Not a korean character') unless gimchi.korean_char? kchar
+    def initialize kchar
+      raise ArgumentError.new('Not a korean character') unless Gimchi.korean_char? kchar
 
-      @gimchi = gimchi
-      if @gimchi.complete_korean_char? kchar
+      if Gimchi.complete_korean_char? kchar
         c = kchar.unpack('U').first
         n = c - 0xAC00
         # '가' ~ '깋' -> 'ㄱ'
@@ -28,14 +26,14 @@ class Gimchi
         n = n % (21 * 28)
         n2 = n / 28;
         n3 = n % 28;
-        self.chosung = @gimchi.chosungs[n1]
-        self.jungsung = @gimchi.jungsungs[n2]
-        self.jongsung = ([nil] + @gimchi.jongsungs)[n3]
-      elsif @gimchi.chosung? kchar
+        self.chosung = Gimchi.chosungs[n1]
+        self.jungsung = Gimchi.jungsungs[n2]
+        self.jongsung = ([nil] + Gimchi.jongsungs)[n3]
+      elsif Gimchi.chosung? kchar
         self.chosung = kchar
-      elsif @gimchi.jungsung? kchar
+      elsif Gimchi.jungsung? kchar
         self.jungsung = kchar
-      elsif @gimchi.jongsung? kchar
+      elsif Gimchi.jongsung? kchar
         self.jongsung = kchar
       end
     end
@@ -43,23 +41,23 @@ class Gimchi
     # Recombines components into a korean character.
     # @return [String] Combined korean character
     def to_s
-      @gimchi.compose chosung, jungsung, jongsung
+      Gimchi.compose chosung, jungsung, jongsung
     end
 
     # Sets the chosung component.
     # @param [String]
     def chosung= c
       raise ArgumentError.new('Invalid chosung component') if
-          c && @gimchi.chosung?(c) == false
-      @chosung = c && c.dup.extend(Component).tap { |e| e.kor = @gimchi }
+          c && Gimchi.chosung?(c) == false
+      @chosung = c && c.dup.extend(Component).tap { |e| e.kor = Gimchi }
     end
 
     # Sets the jungsung component
     # @param [String]
     def jungsung= c
       raise ArgumentError.new('Invalid jungsung component') if
-          c && @gimchi.jungsung?(c) == false
-      @jungsung = c && c.dup.extend(Component).tap { |e| e.kor = @gimchi }
+          c && Gimchi.jungsung?(c) == false
+      @jungsung = c && c.dup.extend(Component).tap { |e| e.kor = Gimchi }
     end
 
     # Sets the jongsung component
@@ -67,8 +65,8 @@ class Gimchi
     # @param [String]
     def jongsung= c
       raise ArgumentError.new('Invalid jongsung component') if
-          c && @gimchi.jongsung?(c) == false
-      @jongsung = c && c.dup.extend(Component).tap { |e| e.kor = @gimchi }
+          c && Gimchi.jongsung?(c) == false
+      @jongsung = c && c.dup.extend(Component).tap { |e| e.kor = Gimchi }
     end
 
     # Returns Array of three components.

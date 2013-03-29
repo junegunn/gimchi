@@ -4,7 +4,7 @@ $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 Gem::Specification.new do |gem|
   gem.name          = %q{gimchi}
-  gem.version       = "0.2.0"
+  gem.version       = "0.2.1"
   gem.authors       = ["Junegunn Choi"]
   gem.email         = ["junegunn.c@gmail.com"]
   gem.description   = %q{A Ruby gem for Korean characters}

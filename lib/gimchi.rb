@@ -8,77 +8,11 @@ require 'gimchi/char'
 require 'gimchi/pronouncer'
 
 class Gimchi
-  class << self
-    def setup
-      @@default ||= Gimchi.new
-    end
+class << self
+  attr_reader :chosungs, :jungsungs, :jongsungs
 
-    def Char ch
-      @@default.kchar ch
-    end
-
-    [
-      :decompose,
-      :compose,
-      :korean_char?,
-      :complete_korean_char?,
-      :kchar,
-      :kchar?,
-      :chosung?,
-      :jungsung?,
-      :jongsung?,
-      :read_number,
-      :pronounce,
-      :romanize
-    ].each do |sym|
-      define_method(sym) do |*arg, &b|
-        @@default.send sym, *arg, &b
-      end
-    end
-  end
-
-  CONFIG_FILE_PATH = File.expand_path('../../config/default.yml', __FILE__)
-  attr_reader :config, :chosungs, :jungsungs, :jongsungs
-
-  # Initialize Gimchi::Korean.
-  def initialize
-    symbolize_keys = lambda do |val|
-      case val
-      when Hash
-        {}.tap do |h|
-          val.each do |k, v|
-            k = k.gsub(' ', '_').to_sym if k =~ /[a-z0-9 ]/
-            h[k] = symbolize_keys.call v
-          end
-        end
-      when Array
-        val.map { |v| symbolize_keys.call v }
-      else
-        val
-      end
-    end
-    @config = symbolize_keys.call YAML.load(File.read CONFIG_FILE_PATH)
-
-    [
-      @config[:romanization][:post_substitution],
-      @config[:number][:post_substitution],
-      @config[:number][:alt_notation][:post_substitution]
-    ].each do |r|
-      r.keys.each do |k|
-        r[Regexp.compile k.to_s] = r.delete k
-      end
-    end
-    @config.freeze
-
-    @pronouncer = Gimchi::Pronouncer.send :new, self
-
-    @chosungs  = config[:structure][:chosung]
-    @jungsungs = config[:structure][:jungsung]
-    @jongsungs = config[:structure][:jongsung]
-    @chosung_set  = Set[*@chosungs]
-    @jungsung_set = Set[*@jungsungs]
-    @jongsung_set = Set[*@jongsungs]
-    @all          = @chosung_set + @jungsung_set + @jongsung_set
+  def Char ch
+    kchar ch
   end
 
   # Decompose a Korean character into 3 components
@@ -144,11 +78,10 @@ class Gimchi
     ch.unpack('U').all? { | c | c >= 0xAC00 && c <= 0xD7A3 }
   end
 
-  # Returns a Gimchi::Char object for the given Korean character.
-  # @param [String] ch Korean character in String
-  # @return [Gimchi::Char] Gimchi::Char instance
+  # @deprecated
+  # @private
   def kchar ch
-    Gimchi::Char.new(self, ch)
+    Gimchi::Char.new(ch)
   end
 
   # Reads numeric expressions in Korean way.
@@ -206,7 +139,7 @@ class Gimchi
       :slur          => false
     }.merge options
 
-    rdata = config[:romanization]
+    rdata = @config[:romanization]
     post_subs = rdata[:post_substitution]
     rdata = [rdata[:chosung], rdata[:jungsung], rdata[:jongsung]]
 
@@ -252,12 +185,14 @@ class Gimchi
   end
 
 private
+  CONFIG_FILE_PATH = File.expand_path('../../config/default.yml', __FILE__)
+
   def str_length str
     str.length
   end
 
   def read_number_sub num, next_char
-    nconfig = config[:number]
+    nconfig = @config[:number]
 
     if num == '0'
       return nconfig[:digits].first
@@ -374,8 +309,50 @@ private
     end
     ret
   end
+
+  # @private
+  def setup
+    symbolize_keys = lambda do |val|
+      case val
+      when Hash
+        {}.tap do |h|
+          val.each do |k, v|
+            k = k.gsub(' ', '_').to_sym if k =~ /[a-z0-9 ]/
+            h[k] = symbolize_keys.call v
+          end
+        end
+      when Array
+        val.map { |v| symbolize_keys.call v }
+      else
+        val
+      end
+    end
+    @config = symbolize_keys.call YAML.load(File.read CONFIG_FILE_PATH)
+
+    [
+      @config[:romanization][:post_substitution],
+      @config[:number][:post_substitution],
+      @config[:number][:alt_notation][:post_substitution]
+    ].each do |r|
+      r.keys.each do |k|
+        r[Regexp.compile k.to_s] = r.delete k
+      end
+    end
+    @config.freeze
+
+    @pronouncer = Gimchi::Pronouncer.send :new, @config[:pronouncer], @config[:structure]
+
+    @chosungs  = @config[:structure][:chosung]
+    @jungsungs = @config[:structure][:jungsung]
+    @jongsungs = @config[:structure][:jongsung]
+    @chosung_set  = Set[*@chosungs]
+    @jungsung_set = Set[*@jungsungs]
+    @jongsung_set = Set[*@jongsungs]
+    @all          = @chosung_set + @jungsung_set + @jongsung_set
+  end
+end
 end#Gimchi
 
 require 'gimchi/patch_1.8'
 
-Gimchi.setup
+Gimchi.send :setup

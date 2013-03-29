@@ -7,9 +7,9 @@ class Gimchi
   # @private
   class Pronouncer
   private
-    def initialize gimchi
-      @gimchi = gimchi
-      @pconfig = gimchi.config[:pronouncer]
+    def initialize pconfig, structure
+      @pconfig = pconfig
+      @structure = structure
     end
 
     def pronounce! str, options = {}
@@ -17,7 +17,7 @@ class Gimchi
         "sequence_for_#{options[:each_char] ? '1' : '2'}".to_sym] - options[:except]
 
       # Dissecting
-      @chars = str.each_char.map { |c| @gimchi.kchar(c) rescue c }
+      @chars = str.each_char.map { |c| Gimchi.kchar(c) rescue c }
       @orig_chars = @chars.dup
 
       # Padding
@@ -86,12 +86,12 @@ class Gimchi
 
     # shortcut
     def fortis_map
-      @gimchi.config[:structure][:fortis_map]
+      @structure[:fortis_map]
     end
 
     # shortcut
     def double_consonant_map
-      @gimchi.config[:structure][:double_consonant_map]
+      @structure[:double_consonant_map]
     end
 
     # 제5항: ‘ㅑ ㅒ ㅕ ㅖ ㅘ ㅙ ㅛ ㅝ ㅞ ㅠ ㅢ’는 이중 모음으로 발음한다.
@@ -299,7 +299,7 @@ class Gimchi
 
       word = @kc.to_s + @next_kc.to_s
       if map.keys.include? word
-        new_char = @gimchi.kchar(map[word].scan(/./mu)[1])
+        new_char = Gimchi.kchar(map[word].scan(/./mu)[1])
         @next_kc.chosung = new_char.chosung
         @next_kc.jongsung = new_char.jongsung
 

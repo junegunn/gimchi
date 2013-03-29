@@ -12,14 +12,14 @@ class << self
   attr_reader :chosungs, :jungsungs, :jongsungs
 
   def Char ch
-    kchar ch
+    Gimchi::Char.new(ch)
   end
 
   # Decompose a Korean character into 3 components
   # @param [String] ch Korean character
   # @return [Array]
   def decompose ch
-    kchar(ch).to_a
+    Gimchi::Char.new(ch).to_a
   end
 
   # Compose 3 elements into a Korean character String
@@ -153,7 +153,7 @@ class << self
     romanization = ""
 
     romanize_chunk = lambda do |chunk|
-      chunk.each_char.map { |ch| kchar(ch) rescue ch }.each do |kc|
+      chunk.each_char.map { |ch| Gimchi::Char.new(ch) rescue ch }.each do |kc|
         kc.to_a.each_with_index do |comp, idx|
           next if comp.nil?
           comp = rdata[idx][comp] || comp

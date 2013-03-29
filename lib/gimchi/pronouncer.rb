@@ -17,7 +17,7 @@ class Gimchi
         "sequence_for_#{options[:each_char] ? '1' : '2'}".to_sym] - options[:except]
 
       # Dissecting
-      @chars = str.each_char.map { |c| Gimchi.kchar(c) rescue c }
+      @chars = str.each_char.map { |c| Gimchi::Char.new(c) rescue c }
       @orig_chars = @chars.dup
 
       # Padding
@@ -299,7 +299,7 @@ class Gimchi
 
       word = @kc.to_s + @next_kc.to_s
       if map.keys.include? word
-        new_char = Gimchi.kchar(map[word].scan(/./mu)[1])
+        new_char = Gimchi::Char.new(map[word].scan(/./mu)[1])
         @next_kc.chosung = new_char.chosung
         @next_kc.jongsung = new_char.jongsung
 

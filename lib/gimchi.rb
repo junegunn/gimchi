@@ -351,6 +351,10 @@ private
     @all          = @chosung_set + @jungsung_set + @jongsung_set
   end
 end
+private
+  def initialize
+    raise NoMethodError, "Gimchi is a singleton class"
+  end
 end#Gimchi
 
 require 'gimchi/patch_1.8'
